@@ -1,0 +1,13 @@
+version: 2
+sql:
+  - engine: "sqlite"
+    schema: "schema.sql"
+    queries: "query.sql"
+    gen:
+      go:
+        package: "sqlite"
+        emit_prepared_queries: true
+        out: "internal/platform/sqlite"
+        overrides:
+          - db_type: "UUID"
+            go_type: "github.com/google/uuid.UUID"
