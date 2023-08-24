@@ -1,10 +1,11 @@
 module github.com/lewisje1991/code-bookmarks
 
-go 1.19
+go 1.20
 
 require (
 	github.com/go-chi/chi v1.5.4
 	github.com/go-chi/render v1.0.2
+	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63
 	modernc.org/sqlite v1.25.0
 )
 
@@ -16,11 +17,9 @@ require (
 	github.com/libsql/sqlite-antlr4-parser v0.0.0-20230802215326-5cb5bb604475 // indirect
 	github.com/mattn/go-isatty v0.0.18 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e // indirect
-	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3 // indirect
-	golang.org/x/sys v0.7.0 // indirect
-	golang.org/x/tools v0.1.10 // indirect
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
+	golang.org/x/mod v0.12.0 // indirect
+	golang.org/x/sys v0.11.0 // indirect
+	golang.org/x/tools v0.12.1-0.20230815132531-74c255bcf846 // indirect
 	lukechampine.com/uint128 v1.2.0 // indirect
 	modernc.org/cc/v3 v3.40.0 // indirect
 	modernc.org/ccgo/v3 v3.16.13 // indirect

@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"log/slog"
-
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/google/uuid"
 	"github.com/lewisje1991/code-bookmarks/internal/bookmarks"
+	"golang.org/x/exp/slog"
 )
 
 func GetBookmarkHandler(logger *slog.Logger, s *bookmarks.Service) http.HandlerFunc {

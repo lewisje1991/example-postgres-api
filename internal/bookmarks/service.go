@@ -3,9 +3,8 @@ package bookmarks
 import (
 	"fmt"
 
-	"log/slog"
-
 	"github.com/google/uuid"
+	"golang.org/x/exp/slog"
 )
 
 type Service struct {

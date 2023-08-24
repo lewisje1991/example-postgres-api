@@ -5,13 +5,12 @@ import (
 	"net/http"
 	"os"
 
-	"log/slog"
-
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/lewisje1991/code-bookmarks/internal/api"
 	"github.com/lewisje1991/code-bookmarks/internal/bookmarks"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/sqlite"
+	"golang.org/x/exp/slog"
 )
 
 // TODO: deployment
@@ -46,7 +45,7 @@ func main() {
 		w.Write([]byte("route does not exist"))
 	})
 
-	logger.Info("starting server on port:", )
+	logger.Info("starting server on port:")
 	if err := http.ListenAndServe(":8080", r); err != nil {
 		panic(err)
 	}
