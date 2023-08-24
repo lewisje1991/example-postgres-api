@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"net/http"
 	"os"
@@ -12,9 +11,12 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/lewisje1991/code-bookmarks/internal/api"
 	"github.com/lewisje1991/code-bookmarks/internal/bookmarks"
-	_ "github.com/libsql/libsql-client-go/libsql"
-	_ "modernc.org/sqlite"
+	"github.com/lewisje1991/code-bookmarks/internal/platform/sqlite"
 )
+
+// TODO: deployment
+// TODO: tests
+// TODO: htmx
 
 func main() {
 	r := chi.NewRouter()
@@ -27,18 +29,9 @@ func main() {
 		logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
 	}
 
-	var dbUrl = "file:file.db"
-	db, err := sql.Open("libsql", dbUrl)
+	db, err := sqlite.Connect("file:file.db")
 	if err != nil {
-		logger.Error("failed to open db: %v", err)
-		fmt.Fprintf(os.Stderr, "failed to open db %s: %s", dbUrl, err)
-		os.Exit(1)
-	}
-	defer db.Close()
-
-	if err := db.Ping(); err != nil {
-		logger.Error("failed to ping db: %v", err)
-		fmt.Fprintf(os.Stderr, "failed to ping db %s: %s", dbUrl, err)
+		logger.Error(fmt.Sprintf("failed to connect to db: %v", err))
 		os.Exit(1)
 	}
 
@@ -53,6 +46,7 @@ func main() {
 		w.Write([]byte("route does not exist"))
 	})
 
+	logger.Info("starting server on port:", )
 	if err := http.ListenAndServe(":8080", r); err != nil {
 		panic(err)
 	}

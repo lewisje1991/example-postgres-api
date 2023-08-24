@@ -7,6 +7,7 @@ sql:
       go:
         package: "sqlite"
         emit_prepared_queries: true
+        output_db_file_name: "sqlite.go"
         out: "internal/platform/sqlite"
         overrides:
           - db_type: "UUID"
