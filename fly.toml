@@ -12,6 +12,8 @@ primary_region = "lhr"
 
 [env]
   PORT = "8080"
+  MODE= "production"
+  DB_URL = "libsql://code-bookmarks-lewisje1991.turso.io"
 
 [http_service]
   internal_port = 8080

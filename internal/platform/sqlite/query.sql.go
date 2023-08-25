@@ -7,15 +7,12 @@ package sqlite
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/uuid"
 )
 
 const createBookmark = `-- name: CreateBookmark :one
-INSERT INTO bookmarks (id, url, description, tags, created_at, updated_at) 
-VALUES (?, ?, ?, ?, ?, ?)
-RETURNING id, url, description, tags, created_at, updated_at
+INSERT INTO bookmarks (id, url, description, tags, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?) RETURNING id, url, description, tags, created_at, updated_at
 `
 
 type CreateBookmarkParams struct {
@@ -23,8 +20,8 @@ type CreateBookmarkParams struct {
 	Url         string
 	Description string
 	Tags        string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	CreatedAt   string
+	UpdatedAt   string
 }
 
 func (q *Queries) CreateBookmark(ctx context.Context, arg CreateBookmarkParams) (Bookmark, error) {

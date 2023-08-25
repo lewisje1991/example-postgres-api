@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -13,24 +14,43 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-// TODO: deployment
+// TODO: config
 // TODO: tests
 // TODO: htmx
+// TODO: db errors
 
 func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.AllowContentType("application/json"))
 
+	config := NewConfig()
+	if err := config.Load(".env"); err != nil {
+		log.Fatal("Failed to load configuration: ", err)
+	}
+
+	mode := config.Mode
+
 	var logger *slog.Logger
-	if env := os.Getenv("ENV"); env == "prod" {
+	if mode == "prod" {
 		logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	} else {
 		logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
 	}
 
-	db, err := sqlite.Connect("file:file.db")
+	logger.Info(fmt.Sprintf("running in %s mode", mode))
+
+	db, err := sqlite.Connect(sqlite.BuildURL(sqlite.DbConfig{
+		DBURL:   config.DBURL,
+		DBToken: config.DBToken,
+	}))
+
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to connect to db: %v", err))
+		os.Exit(1)
+	}
+
+	if err := db.Ping(); err != nil {
+		logger.Error(fmt.Sprintf("failed to ping db: %v", err))
 		os.Exit(1)
 	}
 
@@ -45,8 +65,9 @@ func main() {
 		w.Write([]byte("route does not exist"))
 	})
 
-	logger.Info("starting server on port:")
-	if err := http.ListenAndServe(":8080", r); err != nil {
-		panic(err)
+	logger.Info(fmt.Sprintf("starting server on port:%d", config.HostPort))
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", config.HostPort), r); err != nil {
+		logger.Error(fmt.Sprintf("failed to start server: %v", err))
+		os.Exit(1)
 	}
 }

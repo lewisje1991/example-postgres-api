@@ -5,8 +5,6 @@
 package sqlite
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 )
 
@@ -15,6 +13,6 @@ type Bookmark struct {
 	Url         string
 	Description string
 	Tags        string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	CreatedAt   string
+	UpdatedAt   string
 }
