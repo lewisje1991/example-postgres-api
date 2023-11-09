@@ -4,12 +4,10 @@
 
 package sqlite
 
-import (
-	"github.com/google/uuid"
-)
+import ()
 
 type Bookmark struct {
-	ID          uuid.UUID
+	ID          string
 	Url         string
 	Description string
 	Tags        string

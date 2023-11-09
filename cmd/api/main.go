@@ -4,29 +4,34 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/lewisje1991/code-bookmarks/internal/api"
-	"github.com/lewisje1991/code-bookmarks/internal/bookmarks"
+	"github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
+	"github.com/lewisje1991/code-bookmarks/internal/platform/config"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/sqlite"
 	"golang.org/x/exp/slog"
 )
 
-// TODO: config
 // TODO: tests
 // TODO: htmx
 // TODO: db errors
 
 func main() {
-	r := chi.NewRouter()
-	r.Use(middleware.AllowContentType("application/json"))
-
-	config := NewConfig()
+	config := config.NewConfig()
 	if err := config.Load(".env"); err != nil {
 		log.Fatal("Failed to load configuration: ", err)
 	}
+
+	url, err := url.Parse(config.DBURL)
+	if err != nil {
+		log.Fatal("Failed to parse db url: ", err)
+	}
+
+	fmt.Printf("%+v\n", url.RequestURI())
 
 	mode := config.Mode
 
@@ -53,13 +58,16 @@ func main() {
 		logger.Error(fmt.Sprintf("failed to ping db: %v", err))
 		os.Exit(1)
 	}
+	defer db.Close()
 
 	bookmarksStore := bookmarks.NewStore(db)
 	booksmarksService := bookmarks.NewService(bookmarksStore, logger)
+	booksmarksHandler := api.NewBookmarkHandler(logger, booksmarksService)
 
-	r.Post("/bookmark", api.PostBookmarkHandler(logger, booksmarksService))
-	r.Get("/bookmark/{id}", api.GetBookmarkHandler(logger, booksmarksService))
-
+	r := chi.NewRouter()
+	r.Use(middleware.AllowContentType("application/json"))
+	r.Post("/bookmark", booksmarksHandler.Post())
+	r.Get("/bookmark/{id}", booksmarksHandler.Get())
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
 		w.Write([]byte("route does not exist"))

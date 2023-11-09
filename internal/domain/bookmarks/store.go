@@ -24,10 +24,9 @@ func (s *Store) CreateBookmark(b *Bookmark) (*Bookmark, error) {
 	queries := sqlite.New(s.db)
 
 	bmk := sqlite.CreateBookmarkParams{
-		ID:          uuid.New(),
+		ID:          uuid.New().String(),
 		Url:         b.URL,
 		Description: b.Description,
-		Tags:        strings.Join(b.Tags, ","),
 		CreatedAt:   time.Now().UTC().Format(time.DateTime),
 		UpdatedAt:   time.Now().UTC().Format(time.DateTime),
 	}
@@ -37,18 +36,20 @@ func (s *Store) CreateBookmark(b *Bookmark) (*Bookmark, error) {
 		return nil, fmt.Errorf("error executing post bookmark query: %w", err)
 	}
 
-	createdAt, err := time.Parse(time.DateTime, res.CreatedAt)
+	fmt.Println(res.CreatedAt)
+
+	createdAt, err := time.Parse(time.RFC3339, res.CreatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing created at time: %w", err)
 	}
 
-	updatedAt, err := time.Parse(time.DateTime, res.UpdatedAt)
+	updatedAt, err := time.Parse(time.RFC3339, res.UpdatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing updated at time: %w", err)
 	}
 
 	return &Bookmark{
-		ID:          res.ID,
+		ID:          uuid.MustParse(res.ID),
 		URL:         res.Url,
 		Description: res.Description,
 		Tags:        strings.Split(res.Tags, ","),
@@ -60,7 +61,7 @@ func (s *Store) CreateBookmark(b *Bookmark) (*Bookmark, error) {
 func (s *Store) GetBookmark(id uuid.UUID) (*Bookmark, error) {
 	queries := sqlite.New(s.db)
 
-	res, err := queries.GetBookmark(context.Background(), id)
+	res, err := queries.GetBookmark(context.Background(), id.String())
 	if err != nil {
 		return nil, fmt.Errorf("error executing get bookmark query: %w", err)
 	}
@@ -76,7 +77,7 @@ func (s *Store) GetBookmark(id uuid.UUID) (*Bookmark, error) {
 	}
 
 	return &Bookmark{
-		ID:          res.ID,
+		ID:          uuid.MustParse(res.ID),
 		URL:         res.Url,
 		Description: res.Description,
 		Tags:        strings.Split(res.Tags, ","),

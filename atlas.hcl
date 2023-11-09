@@ -9,6 +9,6 @@ env "turso" {
 }
 
 env "local" {
-  url     = "sqlite://file.db"
+  url     = "sqlite://sqlite.db"
   exclude = ["_litestream*"]
 }

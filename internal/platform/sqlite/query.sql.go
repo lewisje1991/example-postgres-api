@@ -7,8 +7,6 @@ package sqlite
 
 import (
 	"context"
-
-	"github.com/google/uuid"
 )
 
 const createBookmark = `-- name: CreateBookmark :one
@@ -16,7 +14,7 @@ INSERT INTO bookmarks (id, url, description, tags, created_at, updated_at) VALUE
 `
 
 type CreateBookmarkParams struct {
-	ID          uuid.UUID
+	ID          string
 	Url         string
 	Description string
 	Tags        string
@@ -49,7 +47,7 @@ const getBookmark = `-- name: GetBookmark :one
 SELECT id, url, description, tags, created_at, updated_at FROM bookmarks WHERE id = ?
 `
 
-func (q *Queries) GetBookmark(ctx context.Context, id uuid.UUID) (Bookmark, error) {
+func (q *Queries) GetBookmark(ctx context.Context, id string) (Bookmark, error) {
 	row := q.queryRow(ctx, q.getBookmarkStmt, getBookmark, id)
 	var i Bookmark
 	err := row.Scan(
