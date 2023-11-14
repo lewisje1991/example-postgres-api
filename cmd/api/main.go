@@ -7,13 +7,14 @@ import (
 	"net/url"
 	"os"
 
+	"log/slog"
+
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/lewisje1991/code-bookmarks/internal/api"
 	"github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/config"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/sqlite"
-	"golang.org/x/exp/slog"
 )
 
 // TODO: tests
@@ -61,7 +62,7 @@ func main() {
 	defer db.Close()
 
 	bookmarksStore := bookmarks.NewStore(db)
-	booksmarksService := bookmarks.NewService(bookmarksStore, logger)
+	booksmarksService := bookmarks.NewService(bookmarksStore)
 	booksmarksHandler := api.NewBookmarkHandler(logger, booksmarksService)
 
 	r := chi.NewRouter()

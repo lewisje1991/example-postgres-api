@@ -4,14 +4,13 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"golang.org/x/exp/slog"
 )
 
 type Service struct {
 	store *Store
 }
 
-func NewService(s *Store, l *slog.Logger) *Service {
+func NewService(s *Store) *Service {
 	return &Service{
 		store: s,
 	}

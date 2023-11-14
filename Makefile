@@ -2,7 +2,7 @@
 gen-env-local:
 	@echo "Generating .env local file..."
 	@echo "MODE=non-prod" > .env
-	@echo "DB_URL=file:file.db" >> .env
+	@echo "DB_URL=file:sqlite.db" >> .env
 
 .PHONY: gen-env-prod
 gen-env-prod:

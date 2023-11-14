@@ -4,22 +4,43 @@ import (
 	"fmt"
 	"net/http"
 
+	"log/slog"
+
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/google/uuid"
 	"github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
-	"golang.org/x/exp/slog"
 )
 
+// go:generate mockgen -source=bookmarks.go -destination=mocks/bookmarks.go -package=mocks
+type BookmarkService interface {
+	GetBookmark(id uuid.UUID) (*bookmarks.Bookmark, error)
+	PostBookmark(bookmark *bookmarks.Bookmark) (*bookmarks.Bookmark, error)
+}
+
 type BookmarkHandler struct {
-	service *bookmarks.Service
+	service BookmarkService
 	logger  *slog.Logger
 }
 
-func NewBookmarkHandler(logger *slog.Logger, s *bookmarks.Service) *BookmarkHandler {
+type Response struct {
+	Data  BookmarkResponse `json:"data,omitempty"`
+	Error string           `json:"error,omitempty"`
+}
+
+type BookmarkResponse struct {
+	ID          string   `json:"id,omitempty"`
+	URL         string   `json:"url,omitempty"`
+	Description string   `json:"description,omitempty"`
+	Tags        []string `json:"tags,omitempty"`
+	CreatedAt   string   `json:"createdAt,omitempty"`
+	UpdatedAt   string   `json:"updatedAt,omitempty"`
+}
+
+func NewBookmarkHandler(l *slog.Logger, s BookmarkService) *BookmarkHandler {
 	return &BookmarkHandler{
 		service: s,
-		logger:  logger,
+		logger:  l,
 	}
 }
 
@@ -28,78 +49,79 @@ func (h *BookmarkHandler) Get() http.HandlerFunc {
 		idParam := chi.URLParam(r, "id")
 		if idParam == "" {
 			h.logger.Error("id is required")
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("id is required"))
+			sendResponse(w, r, http.StatusBadRequest, Response{Error: "id is required"})
 			return
 		}
 
 		bookmarkID, err := uuid.Parse(idParam)
 		if err != nil {
 			h.logger.Error(fmt.Sprintf("error parsing id: %v", err))
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("invalid id"))
+			sendResponse(w, r, http.StatusBadRequest, Response{Error: fmt.Sprintf("invalid id: %v", err)})
 			return
 		}
 
 		bookmark, err := h.service.GetBookmark(bookmarkID)
 		if err != nil {
 			h.logger.Error(fmt.Sprintf("error getting bookmark: %v", err))
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("error getting bookmark"))
+			sendResponse(w, r, http.StatusInternalServerError, Response{Error: "error getting bookmark"})
 			return
 		}
 
-		render.Status(r, http.StatusOK)
-		render.JSON(w, r, bookmark)
+		if bookmark == nil {
+			sendResponse(w, r, http.StatusNotFound, Response{Error: "bookmark not found"})
+			return
+		}
+
+		sendResponse(w, r, http.StatusOK, Response{
+			Data: BookmarkResponse{
+				ID:          bookmark.ID.String(),
+				URL:         bookmark.URL,
+				Description: bookmark.Description,
+				Tags:        bookmark.Tags,
+				CreatedAt:   bookmark.CreatedAt.String(),
+				UpdatedAt:   bookmark.UpdatedAt.String(),
+			},
+		})
 	}
 }
 
 func (h *BookmarkHandler) Post() http.HandlerFunc {
 	type request struct {
-		URL         string   `json:"url"`
-		Description string   `json:"description"`
+		URL         string   `validate:"required" json:"url"`
+		Description string   `validate:"required" json:"description"`
 		Tags        []string `json:"tags"`
 	}
 
-	validate := func(r request) error {
-		if r.URL == "" {
+	validate := func(req request) error {
+		if req.URL == "" {
 			return fmt.Errorf("url is required")
 		}
-		return nil
-	}
 
-	type response struct {
-		ID          string   `json:"id,omitempty"`
-		URL         string   `json:"url,omitempty"`
-		Description string   `json:"description,omitempty"`
-		Tags        []string `json:"tags,omitempty"`
-		CreatedAt   string   `json:"createdAt,omitempty"`
-		UpdatedAt   string   `json:"updatedAt,omitempty"`
+		if req.Description == "" {
+			return fmt.Errorf("description is required")
+		}
+		return nil
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req request
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
 			h.logger.Error(fmt.Sprintf("error decoding request json: %v", err))
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("invalid json"))
+			sendResponse(w, r, http.StatusBadRequest, Response{Error: "invalid json"})
 			return
 		}
 
 		if err := validate(req); err != nil {
 			h.logger.Error(fmt.Sprintf("error validating bookmark request: %v", err))
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("invalid request"))
+			sendResponse(w, r, http.StatusBadRequest, Response{Error: err.Error()})
 			return
 		}
 
-		internalBookmark := &bookmarks.Bookmark{
+		bookmark, err := h.service.PostBookmark(&bookmarks.Bookmark{
 			URL:         req.URL,
 			Tags:        req.Tags,
 			Description: req.Description,
-		}
-
-		bookmark, err := h.service.PostBookmark(internalBookmark)
+		})
 		if err != nil {
 			h.logger.Error(fmt.Sprintf("error creating bookmark: %v", err))
 			w.WriteHeader(http.StatusInternalServerError)
@@ -107,13 +129,15 @@ func (h *BookmarkHandler) Post() http.HandlerFunc {
 			return
 		}
 
-		render.JSON(w, r, response{
-			ID:          bookmark.ID.String(),
-			URL:         bookmark.URL,
-			Description: bookmark.Description,
-			Tags:        bookmark.Tags,
-			CreatedAt:   bookmark.CreatedAt.String(),
-			UpdatedAt:   bookmark.UpdatedAt.String(),
+		sendResponse(w, r, http.StatusOK, Response{
+			Data: BookmarkResponse{
+				ID:          bookmark.ID.String(),
+				URL:         bookmark.URL,
+				Description: bookmark.Description,
+				Tags:        bookmark.Tags,
+				CreatedAt:   bookmark.CreatedAt.String(),
+				UpdatedAt:   bookmark.UpdatedAt.String(),
+			},
 		})
 	}
 }

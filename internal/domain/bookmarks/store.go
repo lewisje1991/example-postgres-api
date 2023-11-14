@@ -27,6 +27,7 @@ func (s *Store) CreateBookmark(b *Bookmark) (*Bookmark, error) {
 		ID:          uuid.New().String(),
 		Url:         b.URL,
 		Description: b.Description,
+		Tags:        strings.Join(b.Tags, ","),
 		CreatedAt:   time.Now().UTC().Format(time.DateTime),
 		UpdatedAt:   time.Now().UTC().Format(time.DateTime),
 	}
@@ -35,8 +36,6 @@ func (s *Store) CreateBookmark(b *Bookmark) (*Bookmark, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error executing post bookmark query: %w", err)
 	}
-
-	fmt.Println(res.CreatedAt)
 
 	createdAt, err := time.Parse(time.RFC3339, res.CreatedAt)
 	if err != nil {
@@ -48,11 +47,16 @@ func (s *Store) CreateBookmark(b *Bookmark) (*Bookmark, error) {
 		return nil, fmt.Errorf("error parsing updated at time: %w", err)
 	}
 
+	var tags []string
+	if res.Tags != "" {
+		tags = strings.Split(res.Tags, ",")
+	}
+
 	return &Bookmark{
 		ID:          uuid.MustParse(res.ID),
 		URL:         res.Url,
 		Description: res.Description,
-		Tags:        strings.Split(res.Tags, ","),
+		Tags:        tags,
 		CreatedAt:   createdAt.In(time.Local),
 		UpdatedAt:   updatedAt.In(time.Local),
 	}, nil
@@ -76,11 +80,16 @@ func (s *Store) GetBookmark(id uuid.UUID) (*Bookmark, error) {
 		return nil, fmt.Errorf("error parsing updated at time: %w", err)
 	}
 
+	var tags []string
+	if res.Tags != "" {
+		tags = strings.Split(res.Tags, ",")
+	}
+
 	return &Bookmark{
 		ID:          uuid.MustParse(res.ID),
 		URL:         res.Url,
 		Description: res.Description,
-		Tags:        strings.Split(res.Tags, ","),
+		Tags:        tags,
 		CreatedAt:   createdAt,
 		UpdatedAt:   updatedAt,
 	}, nil

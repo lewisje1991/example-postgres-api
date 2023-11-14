@@ -1,2 +1,2 @@
 .env
-file.db
+sqlite.db
