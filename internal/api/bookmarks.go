@@ -23,12 +23,12 @@ type BookmarkHandler struct {
 	logger  *slog.Logger
 }
 
-type Response struct {
-	Data  BookmarkResponse `json:"data,omitempty"`
-	Error string           `json:"error,omitempty"`
+type BookmarkResponse struct {
+	Data  BookmarkResponseData `json:"data,omitempty"`
+	Error string               `json:"error,omitempty"`
 }
 
-type BookmarkResponse struct {
+type BookmarkResponseData struct {
 	ID          string   `json:"id,omitempty"`
 	URL         string   `json:"url,omitempty"`
 	Description string   `json:"description,omitempty"`
@@ -49,31 +49,31 @@ func (h *BookmarkHandler) Get() http.HandlerFunc {
 		idParam := chi.URLParam(r, "id")
 		if idParam == "" {
 			h.logger.Error("id is required")
-			sendResponse(w, r, http.StatusBadRequest, Response{Error: "id is required"})
+			sendResponse(w, r, http.StatusBadRequest, BookmarkResponse{Error: "id is required"})
 			return
 		}
 
 		bookmarkID, err := uuid.Parse(idParam)
 		if err != nil {
 			h.logger.Error(fmt.Sprintf("error parsing id: %v", err))
-			sendResponse(w, r, http.StatusBadRequest, Response{Error: fmt.Sprintf("invalid id: %v", err)})
+			sendResponse(w, r, http.StatusBadRequest, BookmarkResponse{Error: fmt.Sprintf("invalid id: %v", err)})
 			return
 		}
 
 		bookmark, err := h.service.GetBookmark(bookmarkID)
 		if err != nil {
 			h.logger.Error(fmt.Sprintf("error getting bookmark: %v", err))
-			sendResponse(w, r, http.StatusInternalServerError, Response{Error: "error getting bookmark"})
+			sendResponse(w, r, http.StatusInternalServerError, BookmarkResponse{Error: "error getting bookmark"})
 			return
 		}
 
 		if bookmark == nil {
-			sendResponse(w, r, http.StatusNotFound, Response{Error: "bookmark not found"})
+			sendResponse(w, r, http.StatusNotFound, BookmarkResponse{Error: "bookmark not found"})
 			return
 		}
 
-		sendResponse(w, r, http.StatusOK, Response{
-			Data: BookmarkResponse{
+		sendResponse(w, r, http.StatusOK, BookmarkResponse{
+			Data: BookmarkResponseData{
 				ID:          bookmark.ID.String(),
 				URL:         bookmark.URL,
 				Description: bookmark.Description,
@@ -107,13 +107,13 @@ func (h *BookmarkHandler) Post() http.HandlerFunc {
 		var req request
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
 			h.logger.Error(fmt.Sprintf("error decoding request json: %v", err))
-			sendResponse(w, r, http.StatusBadRequest, Response{Error: "invalid json"})
+			sendResponse(w, r, http.StatusBadRequest, BookmarkResponse{Error: "invalid json"})
 			return
 		}
 
 		if err := validate(req); err != nil {
 			h.logger.Error(fmt.Sprintf("error validating bookmark request: %v", err))
-			sendResponse(w, r, http.StatusBadRequest, Response{Error: err.Error()})
+			sendResponse(w, r, http.StatusBadRequest, BookmarkResponse{Error: err.Error()})
 			return
 		}
 
@@ -129,8 +129,8 @@ func (h *BookmarkHandler) Post() http.HandlerFunc {
 			return
 		}
 
-		sendResponse(w, r, http.StatusOK, Response{
-			Data: BookmarkResponse{
+		sendResponse(w, r, http.StatusOK, BookmarkResponse{
+			Data: BookmarkResponseData{
 				ID:          bookmark.ID.String(),
 				URL:         bookmark.URL,
 				Description: bookmark.Description,

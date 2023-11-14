@@ -30,11 +30,11 @@ func TestBookmarks_Get(t *testing.T) {
 
 		handler.ServeHTTP(rr, req)
 
-		want := api.Response{
+		want := api.BookmarkResponse{
 			Error: "id is required",
 		}
 
-		got := api.Response{}
+		got := api.BookmarkResponse{}
 		err := json.Unmarshal(rr.Body.Bytes(), &got)
 		assert.NoError(t, err)
 		assert.Equal(t, want, got)
@@ -55,11 +55,11 @@ func TestBookmarks_Get(t *testing.T) {
 
 		handler.ServeHTTP(rr, req)
 
-		want := api.Response{
+		want := api.BookmarkResponse{
 			Error: "invalid id: invalid UUID length: 12",
 		}
 
-		got := api.Response{}
+		got := api.BookmarkResponse{}
 		err := json.Unmarshal(rr.Body.Bytes(), &got)
 		assert.NoError(t, err)
 		assert.Equal(t, want, got)
@@ -82,11 +82,11 @@ func TestBookmarks_Get(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler.ServeHTTP(rr, req)
 
-		want := api.Response{
+		want := api.BookmarkResponse{
 			Error: "error getting bookmark",
 		}
 
-		got := api.Response{}
+		got := api.BookmarkResponse{}
 		err := json.Unmarshal(rr.Body.Bytes(), &got)
 		assert.NoError(t, err)
 		assert.Equal(t, want, got)
@@ -109,11 +109,11 @@ func TestBookmarks_Get(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler.ServeHTTP(rr, req)
 
-		want := api.Response{
+		want := api.BookmarkResponse{
 			Error: "bookmark not found",
 		}
 
-		got := api.Response{}
+		got := api.BookmarkResponse{}
 		err := json.Unmarshal(rr.Body.Bytes(), &got)
 		assert.NoError(t, err)
 		assert.Equal(t, want, got)
@@ -144,8 +144,8 @@ func TestBookmarks_Get(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler.ServeHTTP(rr, req)
 
-		want := api.Response{
-			Data: api.BookmarkResponse{
+		want := api.BookmarkResponse{
+			Data: api.BookmarkResponseData{
 				ID:          "3b1cf807-c743-43ef-bb93-cf7834bf5ca4",
 				URL:         "https://example.com",
 				Description: "example",
@@ -155,7 +155,7 @@ func TestBookmarks_Get(t *testing.T) {
 			},
 		}
 
-		got := api.Response{}
+		got := api.BookmarkResponse{}
 		err := json.Unmarshal(rr.Body.Bytes(), &got)
 		assert.NoError(t, err)
 
