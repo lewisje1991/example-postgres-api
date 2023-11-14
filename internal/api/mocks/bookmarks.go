@@ -20,5 +20,8 @@ func (b *BookmarkService) GetBookmark(id uuid.UUID) (*bookmarks.Bookmark, error)
 
 func (b *BookmarkService) PostBookmark(bookmark *bookmarks.Bookmark) (*bookmarks.Bookmark, error) {
 	args := b.Called(bookmark)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).(*bookmarks.Bookmark), args.Error(1)
 }

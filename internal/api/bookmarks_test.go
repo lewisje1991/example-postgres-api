@@ -34,11 +34,7 @@ func TestBookmarks_Get(t *testing.T) {
 			Error: "id is required",
 		}
 
-		got := api.BookmarkResponse{}
-		err := json.Unmarshal(rr.Body.Bytes(), &got)
-		assert.NoError(t, err)
-		assert.Equal(t, want, got)
-		assert.Equal(t, http.StatusBadRequest, rr.Code)
+		assertResponse(t, rr, http.StatusBadRequest, want)
 	})
 
 	t.Run("id is valid guid", func(t *testing.T) {
@@ -59,11 +55,7 @@ func TestBookmarks_Get(t *testing.T) {
 			Error: "invalid id: invalid UUID length: 12",
 		}
 
-		got := api.BookmarkResponse{}
-		err := json.Unmarshal(rr.Body.Bytes(), &got)
-		assert.NoError(t, err)
-		assert.Equal(t, want, got)
-		assert.Equal(t, http.StatusBadRequest, rr.Code)
+		assertResponse(t, rr, http.StatusBadRequest, want)
 	})
 
 	t.Run("error getting bookmark", func(t *testing.T) {
@@ -86,11 +78,7 @@ func TestBookmarks_Get(t *testing.T) {
 			Error: "error getting bookmark",
 		}
 
-		got := api.BookmarkResponse{}
-		err := json.Unmarshal(rr.Body.Bytes(), &got)
-		assert.NoError(t, err)
-		assert.Equal(t, want, got)
-		assert.Equal(t, http.StatusInternalServerError, rr.Code)
+		assertResponse(t, rr, http.StatusInternalServerError, want)
 	})
 
 	t.Run("bookmark is not found", func(t *testing.T) {
@@ -113,11 +101,7 @@ func TestBookmarks_Get(t *testing.T) {
 			Error: "bookmark not found",
 		}
 
-		got := api.BookmarkResponse{}
-		err := json.Unmarshal(rr.Body.Bytes(), &got)
-		assert.NoError(t, err)
-		assert.Equal(t, want, got)
-		assert.Equal(t, http.StatusNotFound, rr.Code)
+		assertResponse(t, rr, http.StatusNotFound, want)
 	})
 
 	t.Run("bookmark is found", func(t *testing.T) {
@@ -155,11 +139,15 @@ func TestBookmarks_Get(t *testing.T) {
 			},
 		}
 
-		got := api.BookmarkResponse{}
-		err := json.Unmarshal(rr.Body.Bytes(), &got)
-		assert.NoError(t, err)
-
-		assert.Equal(t, want, got)
-		assert.Equal(t, http.StatusOK, rr.Code)
+		assertResponse(t, rr, http.StatusOK, want)
 	})
+}
+
+func assertResponse(t *testing.T, rr *httptest.ResponseRecorder, statusCode int, body api.BookmarkResponse) {
+	t.Helper()
+	got := api.BookmarkResponse{}
+	err := json.Unmarshal(rr.Body.Bytes(), &got)
+	assert.NoError(t, err)
+	assert.Equal(t, body, got)
+	assert.Equal(t, statusCode, rr.Code)
 }
