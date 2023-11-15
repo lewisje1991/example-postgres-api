@@ -17,6 +17,7 @@ import (
 	"github.com/lewisje1991/code-bookmarks/internal/api/mocks"
 	"github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestBookmarks_Get(t *testing.T) {
@@ -60,7 +61,7 @@ func TestBookmarks_Get(t *testing.T) {
 
 	t.Run("error getting bookmark", func(t *testing.T) {
 		mockBookmarkService := new(mocks.BookmarkService)
-		mockBookmarkService.On("GetBookmark", uuid.MustParse("3b1cf807-c743-43ef-bb93-cf7834bf5ca4")).Return(nil, fmt.Errorf("error getting bookmark"))
+		mockBookmarkService.On("GetBookmark", mock.Anything, uuid.MustParse("3b1cf807-c743-43ef-bb93-cf7834bf5ca4")).Return(nil, fmt.Errorf("error getting bookmark"))
 
 		bookmarkHandler := api.NewBookmarkHandler(logger, mockBookmarkService)
 		handler := bookmarkHandler.Get()
@@ -83,7 +84,7 @@ func TestBookmarks_Get(t *testing.T) {
 
 	t.Run("bookmark is not found", func(t *testing.T) {
 		mockBookmarkService := new(mocks.BookmarkService)
-		mockBookmarkService.On("GetBookmark", uuid.MustParse("3b1cf807-c743-43ef-bb93-cf7834bf5ca4")).Return(nil, nil)
+		mockBookmarkService.On("GetBookmark", mock.Anything, uuid.MustParse("3b1cf807-c743-43ef-bb93-cf7834bf5ca4")).Return(nil, nil)
 
 		bookmarkHandler := api.NewBookmarkHandler(logger, mockBookmarkService)
 		handler := bookmarkHandler.Get()
@@ -114,7 +115,7 @@ func TestBookmarks_Get(t *testing.T) {
 			CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 			UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 		}
-		mockBookmarkService.On("GetBookmark", uuid.MustParse("3b1cf807-c743-43ef-bb93-cf7834bf5ca4")).Return(mockBookmark, nil)
+		mockBookmarkService.On("GetBookmark", mock.Anything, uuid.MustParse("3b1cf807-c743-43ef-bb93-cf7834bf5ca4")).Return(mockBookmark, nil)
 
 		bookmarkHandler := api.NewBookmarkHandler(logger, mockBookmarkService)
 		handler := bookmarkHandler.Get()

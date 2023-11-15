@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -14,8 +15,8 @@ import (
 
 // go:generate mockgen -source=bookmarks.go -destination=mocks/bookmarks.go -package=mocks
 type BookmarkService interface {
-	GetBookmark(id uuid.UUID) (*bookmarks.Bookmark, error)
-	PostBookmark(bookmark *bookmarks.Bookmark) (*bookmarks.Bookmark, error)
+	GetBookmark(ctx context.Context, id uuid.UUID) (*bookmarks.Bookmark, error)
+	PostBookmark(ctx context.Context, bookmark *bookmarks.Bookmark) (*bookmarks.Bookmark, error)
 }
 
 type BookmarkHandler struct {
@@ -60,7 +61,7 @@ func (h *BookmarkHandler) Get() http.HandlerFunc {
 			return
 		}
 
-		bookmark, err := h.service.GetBookmark(bookmarkID)
+		bookmark, err := h.service.GetBookmark(r.Context(), bookmarkID)
 		if err != nil {
 			h.logger.Error(fmt.Sprintf("error getting bookmark: %v", err))
 			sendResponse(w, r, http.StatusInternalServerError, BookmarkResponse{Error: "error getting bookmark"})
@@ -117,11 +118,12 @@ func (h *BookmarkHandler) Post() http.HandlerFunc {
 			return
 		}
 
-		bookmark, err := h.service.PostBookmark(&bookmarks.Bookmark{
+		b := &bookmarks.Bookmark{
 			URL:         req.URL,
 			Tags:        req.Tags,
 			Description: req.Description,
-		})
+		}
+		bookmark, err := h.service.PostBookmark(r.Context(), b)
 		if err != nil {
 			h.logger.Error(fmt.Sprintf("error creating bookmark: %v", err))
 			w.WriteHeader(http.StatusInternalServerError)

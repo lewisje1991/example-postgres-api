@@ -20,7 +20,7 @@ func NewStore(db sqlite.DBTX) *Store {
 	}
 }
 
-func (s *Store) CreateBookmark(b *Bookmark) (*Bookmark, error) {
+func (s *Store) CreateBookmark(ctx context.Context, b *Bookmark) (*Bookmark, error) {
 	queries := sqlite.New(s.db)
 
 	bmk := sqlite.CreateBookmarkParams{
@@ -32,7 +32,7 @@ func (s *Store) CreateBookmark(b *Bookmark) (*Bookmark, error) {
 		UpdatedAt:   time.Now().UTC().Format(time.DateTime),
 	}
 
-	res, err := queries.CreateBookmark(context.Background(), bmk) //TODO add context
+	res, err := queries.CreateBookmark(ctx, bmk)
 	if err != nil {
 		return nil, fmt.Errorf("error executing post bookmark query: %w", err)
 	}
@@ -62,10 +62,10 @@ func (s *Store) CreateBookmark(b *Bookmark) (*Bookmark, error) {
 	}, nil
 }
 
-func (s *Store) GetBookmark(id uuid.UUID) (*Bookmark, error) {
+func (s *Store) GetBookmark(ctx context.Context, id uuid.UUID) (*Bookmark, error) {
 	queries := sqlite.New(s.db)
 
-	res, err := queries.GetBookmark(context.Background(), id.String())
+	res, err := queries.GetBookmark(ctx, id.String())
 	if err != nil {
 		return nil, fmt.Errorf("error executing get bookmark query: %w", err)
 	}
