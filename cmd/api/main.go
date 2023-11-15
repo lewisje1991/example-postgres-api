@@ -9,15 +9,14 @@ import (
 
 	"log/slog"
 
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
-	"github.com/lewisje1991/code-bookmarks/internal/api"
+	"github.com/lewisje1991/code-bookmarks/internal/api/handlers"
+	"github.com/lewisje1991/code-bookmarks/internal/api/router"
 	"github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/config"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/sqlite"
 )
 
-// TODO: tests
+// TODO: integration tests
 // TODO: htmx
 // TODO: db errors
 
@@ -63,19 +62,12 @@ func main() {
 
 	bookmarksStore := bookmarks.NewStore(db)
 	booksmarksService := bookmarks.NewService(bookmarksStore)
-	booksmarksHandler := api.NewBookmarkHandler(logger, booksmarksService)
+	booksmarksHandler := handlers.NewBookmarkHandler(logger, booksmarksService)
 
-	r := chi.NewRouter()
-	r.Use(middleware.AllowContentType("application/json"))
-	r.Post("/bookmark", booksmarksHandler.Post())
-	r.Get("/bookmark/{id}", booksmarksHandler.Get())
-	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(404)
-		w.Write([]byte("route does not exist"))
-	})
+	router := router.Routes(*booksmarksHandler)
 
 	logger.Info(fmt.Sprintf("starting server on port:%d", config.HostPort))
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", config.HostPort), r); err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", config.HostPort), router); err != nil {
 		logger.Error(fmt.Sprintf("failed to start server: %v", err))
 		os.Exit(1)
 	}

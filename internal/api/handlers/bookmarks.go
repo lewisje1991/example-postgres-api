@@ -1,4 +1,4 @@
-package api
+package handlers
 
 import (
 	"context"
@@ -45,7 +45,7 @@ func NewBookmarkHandler(l *slog.Logger, s BookmarkService) *BookmarkHandler {
 	}
 }
 
-func (h *BookmarkHandler) Get() http.HandlerFunc {
+func (h *BookmarkHandler) GetHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		idParam := chi.URLParam(r, "id")
 		if idParam == "" {
@@ -86,7 +86,7 @@ func (h *BookmarkHandler) Get() http.HandlerFunc {
 	}
 }
 
-func (h *BookmarkHandler) Post() http.HandlerFunc {
+func (h *BookmarkHandler) PostHandler() http.HandlerFunc {
 	type request struct {
 		URL         string   `validate:"required" json:"url"`
 		Description string   `validate:"required" json:"description"`
@@ -142,4 +142,9 @@ func (h *BookmarkHandler) Post() http.HandlerFunc {
 			},
 		})
 	}
+}
+
+func sendResponse(w http.ResponseWriter, r *http.Request, statusCode int, resp any) {
+	render.Status(r, statusCode)
+	render.JSON(w, r, resp)
 }

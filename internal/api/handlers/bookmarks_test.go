@@ -1,4 +1,4 @@
-package api_test
+package handlers_test
 
 import (
 	"context"
@@ -13,8 +13,8 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"
-	"github.com/lewisje1991/code-bookmarks/internal/api"
-	"github.com/lewisje1991/code-bookmarks/internal/api/mocks"
+	"github.com/lewisje1991/code-bookmarks/internal/api/handlers"
+	"github.com/lewisje1991/code-bookmarks/internal/api/handlers/mocks"
 	"github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -26,12 +26,12 @@ func TestBookmarks_Get(t *testing.T) {
 		req := httptest.NewRequest("GET", "/bookmarks/123", nil)
 
 		rr := httptest.NewRecorder()
-		bookmarkHandler := api.NewBookmarkHandler(logger, nil)
-		handler := bookmarkHandler.Get()
+		bookmarkHandler := handlers.NewBookmarkHandler(logger, nil)
+		handler := bookmarkHandler.GetHandler()
 
 		handler.ServeHTTP(rr, req)
 
-		want := api.BookmarkResponse{
+		want := handlers.BookmarkResponse{
 			Error: "id is required",
 		}
 
@@ -47,12 +47,12 @@ func TestBookmarks_Get(t *testing.T) {
 		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, chiCtx))
 
 		rr := httptest.NewRecorder()
-		bookmarkHandler := api.NewBookmarkHandler(logger, nil)
-		handler := bookmarkHandler.Get()
+		bookmarkHandler := handlers.NewBookmarkHandler(logger, nil)
+		handler := bookmarkHandler.GetHandler()
 
 		handler.ServeHTTP(rr, req)
 
-		want := api.BookmarkResponse{
+		want := handlers.BookmarkResponse{
 			Error: "invalid id: invalid UUID length: 12",
 		}
 
@@ -63,8 +63,8 @@ func TestBookmarks_Get(t *testing.T) {
 		mockBookmarkService := new(mocks.BookmarkService)
 		mockBookmarkService.On("GetBookmark", mock.Anything, uuid.MustParse("3b1cf807-c743-43ef-bb93-cf7834bf5ca4")).Return(nil, fmt.Errorf("error getting bookmark"))
 
-		bookmarkHandler := api.NewBookmarkHandler(logger, mockBookmarkService)
-		handler := bookmarkHandler.Get()
+		bookmarkHandler := handlers.NewBookmarkHandler(logger, mockBookmarkService)
+		handler := bookmarkHandler.GetHandler()
 
 		req := httptest.NewRequest("GET", "/bookmarks/{id}", nil)
 		reqCtx := chi.NewRouteContext()
@@ -75,7 +75,7 @@ func TestBookmarks_Get(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler.ServeHTTP(rr, req)
 
-		want := api.BookmarkResponse{
+		want := handlers.BookmarkResponse{
 			Error: "error getting bookmark",
 		}
 
@@ -86,8 +86,8 @@ func TestBookmarks_Get(t *testing.T) {
 		mockBookmarkService := new(mocks.BookmarkService)
 		mockBookmarkService.On("GetBookmark", mock.Anything, uuid.MustParse("3b1cf807-c743-43ef-bb93-cf7834bf5ca4")).Return(nil, nil)
 
-		bookmarkHandler := api.NewBookmarkHandler(logger, mockBookmarkService)
-		handler := bookmarkHandler.Get()
+		bookmarkHandler := handlers.NewBookmarkHandler(logger, mockBookmarkService)
+		handler := bookmarkHandler.GetHandler()
 
 		req := httptest.NewRequest("GET", "/bookmarks/{id}", nil)
 		reqCtx := chi.NewRouteContext()
@@ -98,7 +98,7 @@ func TestBookmarks_Get(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler.ServeHTTP(rr, req)
 
-		want := api.BookmarkResponse{
+		want := handlers.BookmarkResponse{
 			Error: "bookmark not found",
 		}
 
@@ -117,8 +117,8 @@ func TestBookmarks_Get(t *testing.T) {
 		}
 		mockBookmarkService.On("GetBookmark", mock.Anything, uuid.MustParse("3b1cf807-c743-43ef-bb93-cf7834bf5ca4")).Return(mockBookmark, nil)
 
-		bookmarkHandler := api.NewBookmarkHandler(logger, mockBookmarkService)
-		handler := bookmarkHandler.Get()
+		bookmarkHandler := handlers.NewBookmarkHandler(logger, mockBookmarkService)
+		handler := bookmarkHandler.GetHandler()
 
 		req := httptest.NewRequest("GET", "/bookmarks/{id}", nil)
 		reqCtx := chi.NewRouteContext()
@@ -129,8 +129,8 @@ func TestBookmarks_Get(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler.ServeHTTP(rr, req)
 
-		want := api.BookmarkResponse{
-			Data: api.BookmarkResponseData{
+		want := handlers.BookmarkResponse{
+			Data: handlers.BookmarkResponseData{
 				ID:          "3b1cf807-c743-43ef-bb93-cf7834bf5ca4",
 				URL:         "https://example.com",
 				Description: "example",
@@ -144,9 +144,9 @@ func TestBookmarks_Get(t *testing.T) {
 	})
 }
 
-func assertResponse(t *testing.T, rr *httptest.ResponseRecorder, statusCode int, body api.BookmarkResponse) {
+func assertResponse(t *testing.T, rr *httptest.ResponseRecorder, statusCode int, body handlers.BookmarkResponse) {
 	t.Helper()
-	got := api.BookmarkResponse{}
+	got := handlers.BookmarkResponse{}
 	err := json.Unmarshal(rr.Body.Bytes(), &got)
 	assert.NoError(t, err)
 	assert.Equal(t, body, got)
