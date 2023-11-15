@@ -28,23 +28,13 @@ func (s *Store) CreateBookmark(ctx context.Context, b *Bookmark) (*Bookmark, err
 		Url:         b.URL,
 		Description: b.Description,
 		Tags:        strings.Join(b.Tags, ","),
-		CreatedAt:   time.Now().UTC().Format(time.DateTime),
-		UpdatedAt:   time.Now().UTC().Format(time.DateTime),
+		CreatedAt:   time.Now().UTC(),
+		UpdatedAt:   time.Now().UTC(),
 	}
 
 	res, err := queries.CreateBookmark(ctx, bmk)
 	if err != nil {
 		return nil, fmt.Errorf("error executing post bookmark query: %w", err)
-	}
-
-	createdAt, err := time.Parse(time.RFC3339, res.CreatedAt)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing created at time: %w", err)
-	}
-
-	updatedAt, err := time.Parse(time.RFC3339, res.UpdatedAt)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing updated at time: %w", err)
 	}
 
 	var tags []string
@@ -57,8 +47,8 @@ func (s *Store) CreateBookmark(ctx context.Context, b *Bookmark) (*Bookmark, err
 		URL:         res.Url,
 		Description: res.Description,
 		Tags:        tags,
-		CreatedAt:   createdAt.In(time.Local),
-		UpdatedAt:   updatedAt.In(time.Local),
+		CreatedAt:   res.CreatedAt.In(time.Local),
+		UpdatedAt:   res.UpdatedAt.In(time.Local),
 	}, nil
 }
 
@@ -70,16 +60,6 @@ func (s *Store) GetBookmark(ctx context.Context, id uuid.UUID) (*Bookmark, error
 		return nil, fmt.Errorf("error executing get bookmark query: %w", err)
 	}
 
-	createdAt, err := time.Parse(time.RFC3339, res.CreatedAt)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing created at time: %w", err)
-	}
-
-	updatedAt, err := time.Parse(time.RFC3339, res.UpdatedAt)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing updated at time: %w", err)
-	}
-
 	var tags []string
 	if res.Tags != "" {
 		tags = strings.Split(res.Tags, ",")
@@ -90,7 +70,7 @@ func (s *Store) GetBookmark(ctx context.Context, id uuid.UUID) (*Bookmark, error
 		URL:         res.Url,
 		Description: res.Description,
 		Tags:        tags,
-		CreatedAt:   createdAt,
-		UpdatedAt:   updatedAt,
+		CreatedAt:   res.CreatedAt.In(time.Local),
+		UpdatedAt:   res.UpdatedAt.In(time.Local),
 	}, nil
 }
