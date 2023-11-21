@@ -8,7 +8,12 @@ env "turso" {
   exclude = ["_litestream*"]
 }
 
-env "local" {
+env "docker" {
   url     = "sqlite://db:8080"
+  exclude = ["_litestream*"]
+}
+
+env "local" {
+  url     = "sqlite://sqlite.db"
   exclude = ["_litestream*"]
 }

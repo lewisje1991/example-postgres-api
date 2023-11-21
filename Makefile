@@ -35,10 +35,12 @@ inspect-db:
 connect-db:
 	@turso db shell code-bookmarks
 
+
 .PHONY: migrate-local
 migrate-local:
 	@echo "Migrating database..."
-	@docker compose run migrations
+	@atlas schema apply --env local --to file://schema.sql --dev-url "sqlite://dev?mode=memory"
+
 
 .PHONY: migrate-prod
 migrate-prod:

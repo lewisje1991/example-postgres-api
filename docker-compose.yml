@@ -16,8 +16,9 @@ services:
   migrations:
     image: arigaio/atlas:latest
     command: >
-       schema apply 
-       --env local 
+       schema apply
+       --auto-approve
+       --env docker 
        --to file://schema.sql
        --dev-url "sqlite://dev?mode=memory"
     depends_on:
