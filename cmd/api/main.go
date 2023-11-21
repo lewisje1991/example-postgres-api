@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 
 	"log/slog"
@@ -26,13 +25,6 @@ func main() {
 		log.Fatal("Failed to load configuration: ", err)
 	}
 
-	url, err := url.Parse(config.DBURL)
-	if err != nil {
-		log.Fatal("Failed to parse db url: ", err)
-	}
-
-	fmt.Printf("%+v\n", url.RequestURI())
-
 	mode := config.Mode
 
 	var logger *slog.Logger
@@ -41,6 +33,8 @@ func main() {
 	} else {
 		logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
 	}
+
+	logger.Info("database url: " + config.DBURL)
 
 	logger.Info(fmt.Sprintf("running in %s mode", mode))
 

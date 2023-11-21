@@ -2,7 +2,7 @@
 gen-env-local:
 	@echo "Generating .env local file..."
 	@echo "MODE=non-prod" > .env
-	@echo "DB_URL=file:sqlite.db" >> .env
+	@echo "DB_URL=libsql://db:5001" >> .env
 
 .PHONY: gen-env-prod
 gen-env-prod:
@@ -17,9 +17,11 @@ up:
 
 .PHONY: tools
 tools:
+	@brew install tursodatabase/tap/turso
 	@brew install ariga/tap/atlas
 	@brew install sqlc
 	@brew install flyctl
+	@brew install orbstack
 
 .PHONY: sqlc
 sqlc:
@@ -36,7 +38,7 @@ connect-db:
 .PHONY: migrate-local
 migrate-local:
 	@echo "Migrating database..."
-	@atlas schema apply --env local --to file://schema.sql --dev-url "sqlite://dev?mode=memory"
+	@docker compose run migrations
 
 .PHONY: migrate-prod
 migrate-prod:

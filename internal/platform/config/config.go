@@ -47,6 +47,7 @@ func (c *Config) Load(filePath string) error {
 func (c *Config) initDefaultvalues() {
 	c.viper.SetDefault("MODE", "non-prod")
 	c.viper.SetDefault("HOST_PORT", 8080)
+	c.viper.SetDefault("DB_URL", "")
 }
 
 func (c *Config) Validate() error {

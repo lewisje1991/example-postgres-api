@@ -1,0 +1,27 @@
+services:
+  api:
+    build: 
+        context: .
+    ports:
+      - 8080:8080
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - migrations
+  db: 
+    image: ghcr.io/libsql/sqld:latest
+    ports:
+      - 5001:8080
+  migrations:
+    image: arigaio/atlas:latest
+    command: >
+       schema apply 
+       --env local 
+       --to file://schema.sql
+       --dev-url "sqlite://dev?mode=memory"
+    depends_on:
+       - db
+    volumes:
+      - ./schema.sql:/schema.sql
+      - ./atlas.hcl:/atlas.hcl
