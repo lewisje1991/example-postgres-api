@@ -6,23 +6,18 @@ services:
       - 8080:8080
     env_file:
       - .env
-    depends_on:
-      - db
-      - migrations
-  db: 
-    image: ghcr.io/libsql/sqld:latest
-    ports:
-      - 5001:8080
-  migrations:
+    volumes:
+      - .env:/.env
+  migrate:
     image: arigaio/atlas:latest
+    environment:
+      - DB_TOKEN=${DB_TOKEN}
     command: >
        schema apply
        --auto-approve
-       --env docker 
+       --env dev
        --to file://schema.sql
        --dev-url "sqlite://dev?mode=memory"
-    depends_on:
-       - db
     volumes:
       - ./schema.sql:/schema.sql
       - ./atlas.hcl:/atlas.hcl

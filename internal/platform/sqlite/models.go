@@ -4,15 +4,13 @@
 
 package sqlite
 
-import (
-	"time"
-)
+import ()
 
 type Bookmark struct {
 	ID          string
 	Url         string
 	Description string
 	Tags        string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	CreatedAt   string
+	UpdatedAt   string
 }

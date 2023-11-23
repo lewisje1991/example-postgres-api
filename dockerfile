@@ -10,6 +10,6 @@ RUN ls -l
 FROM scratch AS release
 
 WORKDIR /
-COPY --from=build /api  /api 
+COPY --from=build /api /api 
 EXPOSE 8080
 ENTRYPOINT ["/api"]

@@ -7,7 +7,6 @@ package sqlite
 
 import (
 	"context"
-	"time"
 )
 
 const createBookmark = `-- name: CreateBookmark :one
@@ -19,8 +18,8 @@ type CreateBookmarkParams struct {
 	Url         string
 	Description string
 	Tags        string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	CreatedAt   string
+	UpdatedAt   string
 }
 
 func (q *Queries) CreateBookmark(ctx context.Context, arg CreateBookmarkParams) (Bookmark, error) {
