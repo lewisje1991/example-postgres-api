@@ -3,27 +3,29 @@
 //   sqlc v1.23.0
 // source: query.sql
 
-package sqlite
+package postgres
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createBookmark = `-- name: CreateBookmark :one
-INSERT INTO bookmarks (id, url, description, tags, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?) RETURNING id, url, description, tags, created_at, updated_at
+INSERT INTO bookmarks (id, url, description, tags, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, url, description, tags, created_at, updated_at
 `
 
 type CreateBookmarkParams struct {
-	ID          string
+	ID          pgtype.UUID
 	Url         string
 	Description string
 	Tags        string
-	CreatedAt   string
-	UpdatedAt   string
+	CreatedAt   pgtype.Timestamp
+	UpdatedAt   pgtype.Timestamp
 }
 
 func (q *Queries) CreateBookmark(ctx context.Context, arg CreateBookmarkParams) (Bookmark, error) {
-	row := q.queryRow(ctx, q.createBookmarkStmt, createBookmark,
+	row := q.db.QueryRow(ctx, createBookmark,
 		arg.ID,
 		arg.Url,
 		arg.Description,
@@ -44,11 +46,11 @@ func (q *Queries) CreateBookmark(ctx context.Context, arg CreateBookmarkParams) 
 }
 
 const getBookmark = `-- name: GetBookmark :one
-SELECT id, url, description, tags, created_at, updated_at FROM bookmarks WHERE id = ?
+SELECT id, url, description, tags, created_at, updated_at FROM bookmarks WHERE id = $1
 `
 
-func (q *Queries) GetBookmark(ctx context.Context, id string) (Bookmark, error) {
-	row := q.queryRow(ctx, q.getBookmarkStmt, getBookmark, id)
+func (q *Queries) GetBookmark(ctx context.Context, id pgtype.UUID) (Bookmark, error) {
+	row := q.db.QueryRow(ctx, getBookmark, id)
 	var i Bookmark
 	err := row.Scan(
 		&i.ID,

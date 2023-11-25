@@ -10,10 +10,9 @@ import (
 )
 
 type Config struct {
-	Mode     string `mapstructure:"MODE"`
-	HostPort int    `mapstructure:"HOST_PORT"`
-	DBURL    string `mapstructure:"DB_URL"`
-	DBToken  string `mapstructure:"DB_TOKEN"`
+	Mode       string `mapstructure:"MODE"`
+	HostPort   int    `mapstructure:"HOST_PORT"`
+	DBURL     string `mapstructure:"DB_URL"`
 
 	viper *viper.Viper
 }
@@ -47,7 +46,6 @@ func (c *Config) Load(filePath string) error {
 func (c *Config) initDefaultvalues() {
 	c.viper.SetDefault("MODE", "non-prod")
 	c.viper.SetDefault("HOST_PORT", 8080)
-	c.viper.SetDefault("DB_URL", "")
 }
 
 func (c *Config) Validate() error {

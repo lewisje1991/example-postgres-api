@@ -2,15 +2,17 @@
 // versions:
 //   sqlc v1.23.0
 
-package sqlite
+package postgres
 
-import ()
+import (
+	"github.com/jackc/pgx/v5/pgtype"
+)
 
 type Bookmark struct {
-	ID          string
+	ID          pgtype.UUID
 	Url         string
 	Description string
 	Tags        string
-	CreatedAt   string
-	UpdatedAt   string
+	CreatedAt   pgtype.Timestamp
+	UpdatedAt   pgtype.Timestamp
 }

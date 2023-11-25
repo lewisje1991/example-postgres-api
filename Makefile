@@ -2,16 +2,14 @@
 gen-env-local:
 	@echo "Generating .env local file..."
 	@echo "MODE=non-prod" > .env
-	@echo "DB_URL=$$(turso db show code-bookmarks-dev --url)" >> .env
-	@echo "DB_TOKEN=$$(turso db tokens create code-bookmarks-dev)" >> .env
+	@echo "DB_URL=postgres://postgres:postgres@db:5432/code-bookmarks?sslmode=disable" >> .env
 
 .PHONY: up
 up: gen-env-local
-	@docker compose run -p 8080:8080 api
+	@docker compose run --build -p 8080:8080 api 
 
 .PHONY: tools
 tools:
-	@brew install tursodatabase/tap/turso
 	@brew install ariga/tap/atlas
 	@brew install sqlc
 	@brew install flyctl
@@ -21,10 +19,11 @@ tools:
 sqlc:
 	@sqlc generate
 
-.PHONY: migrate-dev
-migrate-dev:
+.PHONY: migrate-local
+migrate-local:
 	@echo "Migrating database..."
-	@DB_TOKEN=$$(turso db tokens create code-bookmarks-dev) && docker compose run migrate
+	@atlas schema apply --env local
+
 
 # .PHONY: migrate-dev
 # migrate-dev:

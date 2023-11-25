@@ -1,16 +1,11 @@
 version: 2
 sql:
-  - engine: "sqlite"
+  - engine: "postgresql"
     schema: "schema.sql"
     queries: "query.sql"
     gen:
       go:
-        package: "sqlite"
+        package: "postgres"
         emit_prepared_queries: true
-        output_db_file_name: "sqlite.go"
-        out: "internal/platform/sqlite"
-        overrides:
-          - db_type: "UUID"
-            go_type: "github.com/google/uuid.UUID"
-          - db_type: "DATETIME"
-            go_type: "string"
+        out: "internal/platform/postgres"
+        sql_package: "pgx/v5"

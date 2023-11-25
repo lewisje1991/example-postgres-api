@@ -1,9 +1,5 @@
-variable "token" {
-  type    = string
-  default = getenv("DB_TOKEN")
-}
-
-env "dev" {
-  url     = "libsql+wss://code-bookmarks-dev-lewisje1991.turso.io?authToken=${var.token}"
-  exclude = ["_litestream*"]
+env "local" {
+  src = "file://schema.sql"
+  url = "postgres://postgres:postgres@localhost:5432/code-bookmarks?search_path=public&sslmode=disable"
+  dev = "docker://postgres/15/dev?search_path=public"
 }

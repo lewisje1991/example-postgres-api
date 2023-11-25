@@ -7,29 +7,35 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lewisje1991/code-bookmarks/internal/platform/sqlite"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/lewisje1991/code-bookmarks/internal/platform/postgres"
 )
 
 type Store struct {
-	db sqlite.DBTX
+	db postgres.DBTX
 }
 
-func NewStore(db sqlite.DBTX) *Store {
+func NewStore(db postgres.DBTX) *Store {
 	return &Store{
 		db: db,
 	}
 }
 
 func (s *Store) CreateBookmark(ctx context.Context, b *Bookmark) (*Bookmark, error) {
-	queries := sqlite.New(s.db)
+	queries := postgres.New(s.db)
 
-	bmk := sqlite.CreateBookmarkParams{
-		ID:          uuid.New().String(),
+	id := pgtype.UUID{
+		Valid: true,
+		Bytes: [16]byte(uuid.New()),
+	}
+
+	bmk := postgres.CreateBookmarkParams{
+		ID:          id,
 		Url:         b.URL,
 		Description: b.Description,
 		Tags:        strings.Join(b.Tags, ","),
-		CreatedAt:   time.Now().UTC().Format(time.DateTime),
-		UpdatedAt:   time.Now().UTC().Format(time.DateTime),
+		CreatedAt:   pgtype.Timestamp{Time: time.Now().UTC(), Valid: true},
+		UpdatedAt:   pgtype.Timestamp{Time: time.Now().UTC(), Valid: true},
 	}
 
 	res, err := queries.CreateBookmark(ctx, bmk)
@@ -42,29 +48,25 @@ func (s *Store) CreateBookmark(ctx context.Context, b *Bookmark) (*Bookmark, err
 		tags = strings.Split(res.Tags, ",")
 	}
 
-	createdAt, err := time.Parse(time.DateTime, res.CreatedAt)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing created at time: %w", err)
-	}
-	updatedAt, err := time.Parse(time.DateTime, res.UpdatedAt)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing updated at time: %w", err)
-	}
-
 	return &Bookmark{
-		ID:          uuid.MustParse(res.ID),
+		ID:          uuid.UUID(res.ID.Bytes),
 		URL:         res.Url,
 		Description: res.Description,
 		Tags:        tags,
-		CreatedAt:   createdAt,
-		UpdatedAt:   updatedAt,
+		CreatedAt:   res.CreatedAt.Time,
+		UpdatedAt:   res.UpdatedAt.Time,
 	}, nil
 }
 
 func (s *Store) GetBookmark(ctx context.Context, id uuid.UUID) (*Bookmark, error) {
-	queries := sqlite.New(s.db)
+	queries := postgres.New(s.db)
 
-	res, err := queries.GetBookmark(ctx, id.String())
+	pgID := pgtype.UUID{
+		Valid: true,
+		Bytes: [16]byte(id),
+	}
+
+	res, err := queries.GetBookmark(ctx, pgID)
 	if err != nil {
 		return nil, fmt.Errorf("error executing get bookmark query: %w", err)
 	}
@@ -74,21 +76,12 @@ func (s *Store) GetBookmark(ctx context.Context, id uuid.UUID) (*Bookmark, error
 		tags = strings.Split(res.Tags, ",")
 	}
 
-	createdAt, err := time.Parse(time.RFC3339, res.CreatedAt)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing created at time: %w", err)
-	}
-	updatedAt, err := time.Parse(time.RFC3339, res.UpdatedAt)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing updated at time: %w", err)
-	}
-
 	return &Bookmark{
-		ID:          uuid.MustParse(res.ID),
+		ID:          uuid.UUID(res.ID.Bytes),
 		URL:         res.Url,
 		Description: res.Description,
 		Tags:        tags,
-		CreatedAt:   createdAt,
-		UpdatedAt:   updatedAt,
+		CreatedAt:   res.CreatedAt.Time,
+		UpdatedAt:   res.UpdatedAt.Time,
 	}, nil
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,7 +13,7 @@ import (
 	"github.com/lewisje1991/code-bookmarks/internal/api/router"
 	"github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/config"
-	"github.com/lewisje1991/code-bookmarks/internal/platform/sqlite"
+	"github.com/lewisje1991/code-bookmarks/internal/platform/postgres"
 )
 
 // TODO: integration tests
@@ -20,6 +21,8 @@ import (
 // TODO: db errors
 
 func main() {
+	ctx := context.Background()
+
 	config := config.NewConfig()
 	if err := config.Load(".env"); err != nil {
 		log.Fatal("Failed to load configuration: ", err)
@@ -34,22 +37,11 @@ func main() {
 		logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
 	}
 
-	logger.Info("database url: " + config.DBURL)
-
 	logger.Info(fmt.Sprintf("running in %s mode", mode))
 
-	db, err := sqlite.Connect(sqlite.BuildURL(sqlite.DbConfig{
-		DBURL:   config.DBURL,
-		DBToken: config.DBToken,
-	}))
-
+	db, err := postgres.Connect(ctx, config.DBURL)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to connect to db: %v", err))
-		os.Exit(1)
-	}
-
-	if err := db.Ping(); err != nil {
-		logger.Error(fmt.Sprintf("failed to ping db: %v", err))
 		os.Exit(1)
 	}
 	defer db.Close()

@@ -1,10 +1,10 @@
-CREATE TABLE IF NOT EXISTS bookmarks (
-  id VARCHAR PRIMARY KEY,
-  url VARCHAR(255) NOT NULL,
-  description VARCHAR(255) NOT NULL,
-  tags VARCHAR(255) NOT NULL,
-  created_at DATETIME NOT NULL,
-  updated_at DATETIME NOT NULL
-);
+CREATE TABLE IF NOT EXISTS "bookmarks" (
+    "id" uuid NOT NULL, 
+    "url" text NOT NULL, 
+    "description" text NOT NULL, 
+    "tags" text NOT NULL, 
+    "created_at" timestamp NOT NULL, 
+    "updated_at" timestamp NOT NULL, 
+    PRIMARY KEY ("id"));
 
-CREATE INDEX IF NOT EXISTS idx_tags ON bookmarks (tags);
+CREATE INDEX IF NOT EXISTS "idx_tags" ON "bookmarks" ("tags");
