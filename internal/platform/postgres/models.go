@@ -16,3 +16,12 @@ type Bookmark struct {
 	CreatedAt   pgtype.Timestamp
 	UpdatedAt   pgtype.Timestamp
 }
+
+type Note struct {
+	ID        pgtype.UUID
+	Title     string
+	Content   string
+	Tags      string
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
+}

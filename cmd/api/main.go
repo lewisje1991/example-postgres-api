@@ -50,7 +50,9 @@ func main() {
 	booksmarksService := bookmarks.NewService(bookmarksStore)
 	booksmarksHandler := handlers.NewBookmarkHandler(logger, booksmarksService)
 
-	router := router.Routes(*booksmarksHandler)
+	notesHandler := handlers.NewNotesHandler(logger)
+
+	router := router.Routes(booksmarksHandler, notesHandler)
 
 	logger.Info(fmt.Sprintf("starting server on port:%d", config.HostPort))
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", config.HostPort), router); err != nil {
