@@ -12,6 +12,7 @@ import (
 	"github.com/lewisje1991/code-bookmarks/internal/api/handlers"
 	"github.com/lewisje1991/code-bookmarks/internal/api/router"
 	"github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
+	"github.com/lewisje1991/code-bookmarks/internal/domain/notes"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/config"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/postgres"
 )
@@ -50,7 +51,9 @@ func main() {
 	booksmarksService := bookmarks.NewService(bookmarksStore)
 	booksmarksHandler := handlers.NewBookmarkHandler(logger, booksmarksService)
 
-	notesHandler := handlers.NewNotesHandler(logger)
+	notesStore := notes.NewStore(db)
+	notesService := notes.NewService(notesStore)
+	notesHandler := handlers.NewNotesHandler(notesService, logger)
 
 	router := router.Routes(booksmarksHandler, notesHandler)
 

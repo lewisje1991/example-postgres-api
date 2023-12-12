@@ -88,8 +88,8 @@ func (h *BookmarkHandler) GetHandler() http.HandlerFunc {
 
 func (h *BookmarkHandler) PostHandler() http.HandlerFunc {
 	type request struct {
-		URL         string   `validate:"required" json:"url"`
-		Description string   `validate:"required" json:"description"`
+		URL         string   `json:"url"`
+		Description string   `json:"description"`
 		Tags        []string `json:"tags"`
 	}
 

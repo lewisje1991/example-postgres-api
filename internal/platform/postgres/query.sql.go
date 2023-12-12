@@ -45,6 +45,40 @@ func (q *Queries) CreateBookmark(ctx context.Context, arg CreateBookmarkParams) 
 	return i, err
 }
 
+const createNote = `-- name: CreateNote :one
+INSERT INTO notes (id, title, content, tags, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, title, content, tags, created_at, updated_at
+`
+
+type CreateNoteParams struct {
+	ID        pgtype.UUID
+	Title     string
+	Content   string
+	Tags      string
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
+}
+
+func (q *Queries) CreateNote(ctx context.Context, arg CreateNoteParams) (Note, error) {
+	row := q.db.QueryRow(ctx, createNote,
+		arg.ID,
+		arg.Title,
+		arg.Content,
+		arg.Tags,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+	)
+	var i Note
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Content,
+		&i.Tags,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getBookmark = `-- name: GetBookmark :one
 SELECT id, url, description, tags, created_at, updated_at FROM bookmarks WHERE id = $1
 `
@@ -56,6 +90,24 @@ func (q *Queries) GetBookmark(ctx context.Context, id pgtype.UUID) (Bookmark, er
 		&i.ID,
 		&i.Url,
 		&i.Description,
+		&i.Tags,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getNote = `-- name: GetNote :one
+SELECT id, title, content, tags, created_at, updated_at FROM notes WHERE id = $1
+`
+
+func (q *Queries) GetNote(ctx context.Context, id pgtype.UUID) (Note, error) {
+	row := q.db.QueryRow(ctx, getNote, id)
+	var i Note
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Content,
 		&i.Tags,
 		&i.CreatedAt,
 		&i.UpdatedAt,

@@ -12,7 +12,6 @@ up: gen-env-local
 tools:
 	@brew install ariga/tap/atlas
 	@brew install sqlc
-	@brew install flyctl
 	@brew install orbstack
 
 .PHONY: sqlc
