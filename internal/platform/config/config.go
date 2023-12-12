@@ -10,9 +10,9 @@ import (
 )
 
 type Config struct {
-	Mode       string `mapstructure:"MODE"`
-	HostPort   int    `mapstructure:"HOST_PORT"`
-	DBURL     string `mapstructure:"DB_URL"`
+	Mode     string `mapstructure:"MODE"`
+	HostPort int    `mapstructure:"HOST_PORT"`
+	DBURL    string `mapstructure:"DB_URL"`
 
 	viper *viper.Viper
 }

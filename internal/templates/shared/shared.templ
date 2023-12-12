@@ -1,0 +1,29 @@
+package shared
+
+import (
+	"fmt"
+	"time"
+)
+
+templ Page(name string) {
+	<html>
+		<head><title>Codebookmarks - {name}</title></head>
+		<body>
+			<nav data-testid="navTemplate">
+				<ul>
+					<li><a href="/">Home</a></li>
+					<li><a href="/posts">Posts</a></li>
+				</ul>
+			</nav>
+			<header data-testid="headerTemplate">
+				<h1>Welcome to Codebookmarks</h1>
+			</header>
+			<main>	
+				{ children... }
+			</main>
+		</body>
+		<footer data-testid="footerTemplate">
+			<div>&copy; { fmt.Sprintf("%d", time.Now().Year()) }</div>
+		</footer>
+	</html>
+}

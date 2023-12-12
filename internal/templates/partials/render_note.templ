@@ -1,0 +1,12 @@
+package partials
+
+import (
+	"github.com/lewisje1991/code-bookmarks/internal/domain/notes"
+)
+
+templ RenderNote(notes *notes.Note) {
+    <div id="todos" class=" sortable">
+        <li>{notes.Title}</li>
+        <li>{notes.Content}</li>
+    </div>
+}

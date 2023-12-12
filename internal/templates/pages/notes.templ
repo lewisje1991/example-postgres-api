@@ -1,0 +1,13 @@
+package pages
+
+import (
+	"github.com/lewisje1991/code-bookmarks/internal/templates/partials"
+	"github.com/lewisje1991/code-bookmarks/internal/templates/shared"
+	"github.com/lewisje1991/code-bookmarks/internal/domain/notes"
+)
+
+templ Notes(notes []*notes.Note) {
+	@shared.Page("Notes") {
+		@partials.RenderNotes(notes)
+	}
+}
