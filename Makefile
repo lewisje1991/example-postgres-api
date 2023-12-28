@@ -24,6 +24,11 @@ migrate-local:
 	@echo "Migrating database..."
 	@atlas schema apply --env local
 
+.PHONY: migrate-supa
+migrate-supa:
+	@echo "Migrating supa database..."
+	@atlas schema apply --env supa
+
 
 # .PHONY: migrate-dev
 # migrate-dev:

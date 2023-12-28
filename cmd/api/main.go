@@ -17,7 +17,8 @@ import (
 	"github.com/lewisje1991/code-bookmarks/internal/platform/postgres"
 )
 
-// TODO: integration tests
+// TODO: auth
+// TODO: hosting
 // TODO: htmx
 // TODO: db errors
 
