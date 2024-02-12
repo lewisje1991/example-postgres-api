@@ -10,7 +10,6 @@ import (
 	"github.com/go-chi/render"
 	"github.com/google/uuid"
 	"github.com/lewisje1991/code-bookmarks/internal/domain/notes"
-	"github.com/lewisje1991/code-bookmarks/internal/templates/pages"
 )
 
 type NoteService interface {
@@ -98,17 +97,6 @@ func (h *NotesHandler) PostHandler() http.HandlerFunc {
 
 func (h *NotesHandler) GetHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		notes := []*notes.Note{
-			{
-				Title:   "Note 1",
-				Content: "Content 1",
-			},
-			{
-				Title:   "Note 2",
-				Content: "Content 2",
-			},
-		}
-
-		pages.Notes(notes).Render(r.Context(), w)
+		w.Write([]byte("Hello, World!"))
 	}
 }
