@@ -17,10 +17,10 @@ import (
 	"github.com/lewisje1991/code-bookmarks/internal/platform/postgres"
 )
 
-// TODO: auth
-// TODO: hosting
-// TODO: htmx
-// TODO: db errors
+// TODO: setup fly.io api hosting
+// TODO: validate tokens with supabase
+// TODO: only have access to your own data
+// TODO: use expo to build a mobile app
 
 func main() {
 	ctx := context.Background()
