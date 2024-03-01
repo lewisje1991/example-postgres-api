@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "code-bookmarks",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -27,11 +28,6 @@ func NewNotesHandler(s NoteService, l *slog.Logger) *NotesHandler {
 		service: s,
 		logger:  l,
 	}
-}
-
-type NoteResponse struct {
-	Data  NoteResponseData `json:"data,omitempty"`
-	Error string           `json:"error,omitempty"`
 }
 
 type NoteResponseData struct {
@@ -63,13 +59,13 @@ func (h *NotesHandler) PostHandler() http.HandlerFunc {
 		var req NoteRequest
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
 			h.logger.Error(fmt.Sprintf("error decoding request json: %v", err))
-			sendResponse(w, r, http.StatusBadRequest, NoteResponse{Error: "invalid json"})
+			encodeError(w, http.StatusBadRequest, errors.New("invalid json"))
 			return
 		}
 
 		if err := validate(req); err != nil {
 			h.logger.Error(fmt.Sprintf("error validating note request: %v", err))
-			sendResponse(w, r, http.StatusBadRequest, NoteResponse{Error: err.Error()})
+			encodeError(w, http.StatusBadRequest, err)
 			return
 		}
 
@@ -79,18 +75,16 @@ func (h *NotesHandler) PostHandler() http.HandlerFunc {
 		})
 		if err != nil {
 			h.logger.Error(fmt.Sprintf("error saving note: %v", err))
-			sendResponse(w, r, http.StatusInternalServerError, NoteResponse{Error: "error saving note"})
+			encodeError(w, http.StatusInternalServerError, errors.New("error saving note"))
 			return
 		}
 
-		sendResponse(w, r, http.StatusOK, NoteResponse{
-			Data: NoteResponseData{
-				Title:     savedNote.Title,
-				Content:   savedNote.Content,
-				Tags:      savedNote.Tags,
-				CreatedAt: time.Now().Local().Format(time.DateTime),
-				UpdatedAt: time.Now().Local().Format(time.DateTime),
-			},
+		encodeData(w, http.StatusOK, NoteResponseData{
+			Title:     savedNote.Title,
+			Content:   savedNote.Content,
+			Tags:      savedNote.Tags,
+			CreatedAt: time.Now().Local().Format(time.DateTime),
+			UpdatedAt: time.Now().Local().Format(time.DateTime),
 		})
 	}
 }

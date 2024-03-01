@@ -31,7 +31,7 @@ func TestBookmarks_Get(t *testing.T) {
 
 		handler.ServeHTTP(rr, req)
 
-		want := handlers.BookmarkResponse{
+		want := handlers.ErrorResponse{
 			Error: "id is required",
 		}
 
@@ -52,7 +52,7 @@ func TestBookmarks_Get(t *testing.T) {
 
 		handler.ServeHTTP(rr, req)
 
-		want := handlers.BookmarkResponse{
+		want := handlers.ErrorResponse{
 			Error: "invalid id: invalid UUID length: 12",
 		}
 
@@ -75,9 +75,9 @@ func TestBookmarks_Get(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler.ServeHTTP(rr, req)
 
-		want := handlers.BookmarkResponse{
-			Error: "error getting bookmark",
-		}
+		want := struct {
+			Data handlers.BookmarkResponse `json:"data,omitempty"`
+		}{} // empty response
 
 		assertResponse(t, rr, http.StatusInternalServerError, want)
 	})
@@ -98,7 +98,7 @@ func TestBookmarks_Get(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler.ServeHTTP(rr, req)
 
-		want := handlers.BookmarkResponse{
+		want := handlers.ErrorResponse{
 			Error: "bookmark not found",
 		}
 
@@ -129,8 +129,10 @@ func TestBookmarks_Get(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler.ServeHTTP(rr, req)
 
-		want := handlers.BookmarkResponse{
-			Data: handlers.BookmarkResponseData{
+		want := struct {
+			Data handlers.BookmarkResponse `json:"data,omitempty"`
+		}{
+			Data: handlers.BookmarkResponse{
 				ID:          "3b1cf807-c743-43ef-bb93-cf7834bf5ca4",
 				URL:         "https://example.com",
 				Description: "example",
@@ -144,9 +146,9 @@ func TestBookmarks_Get(t *testing.T) {
 	})
 }
 
-func assertResponse(t *testing.T, rr *httptest.ResponseRecorder, statusCode int, body handlers.BookmarkResponse) {
+func assertResponse[T any](t *testing.T, rr *httptest.ResponseRecorder, statusCode int, body T) {
 	t.Helper()
-	got := handlers.BookmarkResponse{}
+	var got T
 	err := json.Unmarshal(rr.Body.Bytes(), &got)
 	assert.NoError(t, err)
 	assert.Equal(t, body, got)

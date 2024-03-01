@@ -14,6 +14,7 @@ tools:
 	@brew install ariga/tap/atlas
 	@brew install sqlc
 	@brew install orbstack
+	@brew install bruno
 
 .PHONY: sqlc
 sqlc:

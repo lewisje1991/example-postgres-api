@@ -1,0 +1,22 @@
+meta {
+  name: Post notes
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/note
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "url": "google.com",
+    "description": "a good search engine"
+  }
+}
+
+vars:post-response {
+  noteId: res('data.id')
+}

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -25,11 +26,6 @@ type BookmarkHandler struct {
 }
 
 type BookmarkResponse struct {
-	Data  BookmarkResponseData `json:"data,omitempty"`
-	Error string               `json:"error,omitempty"`
-}
-
-type BookmarkResponseData struct {
 	ID          string   `json:"id,omitempty"`
 	URL         string   `json:"url,omitempty"`
 	Description string   `json:"description,omitempty"`
@@ -50,38 +46,36 @@ func (h *BookmarkHandler) GetHandler() http.HandlerFunc {
 		idParam := chi.URLParam(r, "id")
 		if idParam == "" {
 			h.logger.Error("id is required")
-			sendResponse(w, r, http.StatusBadRequest, BookmarkResponse{Error: "id is required"})
+			encodeError(w, http.StatusBadRequest, errors.New("id is required"))
 			return
 		}
 
 		bookmarkID, err := uuid.Parse(idParam)
 		if err != nil {
 			h.logger.Error(fmt.Sprintf("error parsing id: %v", err))
-			sendResponse(w, r, http.StatusBadRequest, BookmarkResponse{Error: fmt.Sprintf("invalid id: %v", err)})
+			encodeError(w, http.StatusBadRequest, fmt.Errorf("invalid id: %v", err))
 			return
 		}
 
 		bookmark, err := h.service.GetBookmark(r.Context(), bookmarkID)
 		if err != nil {
 			h.logger.Error(fmt.Sprintf("error getting bookmark: %v", err))
-			sendResponse(w, r, http.StatusInternalServerError, BookmarkResponse{Error: "error getting bookmark"})
+			encodeError(w, http.StatusInternalServerError, errors.New("error getting bookmark"))
 			return
 		}
 
 		if bookmark == nil {
-			sendResponse(w, r, http.StatusNotFound, BookmarkResponse{Error: "bookmark not found"})
+			encodeError(w, http.StatusNotFound, errors.New("bookmark not found"))
 			return
 		}
 
-		sendResponse(w, r, http.StatusOK, BookmarkResponse{
-			Data: BookmarkResponseData{
-				ID:          bookmark.ID.String(),
-				URL:         bookmark.URL,
-				Description: bookmark.Description,
-				Tags:        bookmark.Tags,
-				CreatedAt:   bookmark.CreatedAt.String(),
-				UpdatedAt:   bookmark.UpdatedAt.String(),
-			},
+		encodeData(w, http.StatusOK, BookmarkResponse{
+			ID:          bookmark.ID.String(),
+			URL:         bookmark.URL,
+			Description: bookmark.Description,
+			Tags:        bookmark.Tags,
+			CreatedAt:   bookmark.CreatedAt.String(),
+			UpdatedAt:   bookmark.UpdatedAt.String(),
 		})
 	}
 }
@@ -108,13 +102,13 @@ func (h *BookmarkHandler) PostHandler() http.HandlerFunc {
 		var req request
 		if err := render.DecodeJSON(r.Body, &req); err != nil {
 			h.logger.Error(fmt.Sprintf("error decoding request json: %v", err))
-			sendResponse(w, r, http.StatusBadRequest, BookmarkResponse{Error: "invalid json"})
+			encodeError(w, http.StatusBadRequest, errors.New("invalid json"))
 			return
 		}
 
 		if err := validate(req); err != nil {
 			h.logger.Error(fmt.Sprintf("error validating bookmark request: %v", err))
-			sendResponse(w, r, http.StatusBadRequest, BookmarkResponse{Error: err.Error()})
+			encodeError(w, http.StatusBadRequest, err)
 			return
 		}
 
@@ -123,23 +117,21 @@ func (h *BookmarkHandler) PostHandler() http.HandlerFunc {
 			Tags:        req.Tags,
 			Description: req.Description,
 		}
+
 		bookmark, err := h.service.PostBookmark(r.Context(), b)
 		if err != nil {
 			h.logger.Error(fmt.Sprintf("error creating bookmark: %v", err))
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("error creating bookmark"))
+			encodeError(w, http.StatusInternalServerError, errors.New("error creating bookmark"))
 			return
 		}
 
-		sendResponse(w, r, http.StatusOK, BookmarkResponse{
-			Data: BookmarkResponseData{
-				ID:          bookmark.ID.String(),
-				URL:         bookmark.URL,
-				Description: bookmark.Description,
-				Tags:        bookmark.Tags,
-				CreatedAt:   bookmark.CreatedAt.String(),
-				UpdatedAt:   bookmark.UpdatedAt.String(),
-			},
+		encodeData(w, http.StatusOK, BookmarkResponse{
+			ID:          bookmark.ID.String(),
+			URL:         bookmark.URL,
+			Description: bookmark.Description,
+			Tags:        bookmark.Tags,
+			CreatedAt:   bookmark.CreatedAt.String(),
+			UpdatedAt:   bookmark.UpdatedAt.String(),
 		})
 	}
 }
