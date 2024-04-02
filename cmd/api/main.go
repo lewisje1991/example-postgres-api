@@ -11,16 +11,16 @@ import (
 
 	"github.com/lewisje1991/code-bookmarks/internal/api/handlers"
 	"github.com/lewisje1991/code-bookmarks/internal/api/router"
-	bookmarks "github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
+	"github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
 	"github.com/lewisje1991/code-bookmarks/internal/domain/notes"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/config"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/postgres"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/server"
 )
 
-// TODO: setup fly.io api hosting
-// TODO: validate tokens with supabase
-// TODO: only have access to your own data
+// TODO: authentication
+// TODO: authorization
+// TODO: openai integration for tagging
 // TODO: use expo to build a mobile app
 
 func main() {
