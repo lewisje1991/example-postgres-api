@@ -24,11 +24,17 @@ import (
 // TODO: use expo to build a mobile app
 
 func main() {
+	if err := Run(); err != nil {
+		log.Fatalf("failed to run: %v", err)
+	}
+}
+
+func Run() error {
 	ctx := context.Background()
 
 	config := config.NewConfig()
 	if err := config.Load(".env"); err != nil {
-		log.Fatal("Failed to load configuration: ", err)
+		return fmt.Errorf("failed to load config: %v", err)
 	}
 
 	mode := config.Mode
@@ -44,8 +50,7 @@ func main() {
 
 	db, err := postgres.Connect(ctx, config.DBURL)
 	if err != nil {
-		logger.Error(fmt.Sprintf("failed to connect to db: %v", err))
-		os.Exit(1)
+		return fmt.Errorf("failed to connect to db: %v", err)
 	}
 	defer db.Close()
 
@@ -62,7 +67,7 @@ func main() {
 
 	logger.Info(fmt.Sprintf("starting server on port:%d", config.HostPort))
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", config.HostPort), server); err != nil {
-		logger.Error(fmt.Sprintf("failed to start server: %v", err))
-		os.Exit(1)
+		return fmt.Errorf("failed to start server: %v", err)
 	}
+	return nil
 }
