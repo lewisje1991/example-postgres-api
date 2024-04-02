@@ -9,8 +9,8 @@ import (
 
 	"log/slog"
 
-	"github.com/lewisje1991/code-bookmarks/internal/api/handlers"
-	"github.com/lewisje1991/code-bookmarks/internal/api/router"
+	"github.com/lewisje1991/code-bookmarks/internal/app/handlers"
+	"github.com/lewisje1991/code-bookmarks/internal/app/router"
 	"github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
 	"github.com/lewisje1991/code-bookmarks/internal/domain/notes"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/config"

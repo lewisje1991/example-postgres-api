@@ -1,7 +1,7 @@
 package router
 
 import (
-	"github.com/lewisje1991/code-bookmarks/internal/api/handlers"
+	"github.com/lewisje1991/code-bookmarks/internal/app/handlers"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/server"
 )
 

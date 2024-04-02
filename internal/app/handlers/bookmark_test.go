@@ -13,8 +13,8 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"
-	"github.com/lewisje1991/code-bookmarks/internal/api/handlers"
-	"github.com/lewisje1991/code-bookmarks/internal/api/handlers/mocks"
+	"github.com/lewisje1991/code-bookmarks/internal/app/handlers"
+	"github.com/lewisje1991/code-bookmarks/internal/app/handlers/mocks"
 	"github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/server"
 	"github.com/stretchr/testify/assert"
