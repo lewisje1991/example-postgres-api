@@ -12,6 +12,7 @@ import (
 	"github.com/go-chi/render"
 	"github.com/google/uuid"
 	"github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
+	"github.com/lewisje1991/code-bookmarks/internal/platform/server"
 )
 
 // go:generate mockgen -source=bookmarks.go -destination=mocks/bookmarks.go -package=mocks
@@ -34,6 +35,24 @@ type BookmarkResponse struct {
 	UpdatedAt   string   `json:"updatedAt,omitempty"`
 }
 
+type BookmarkRequest struct {
+	URL         string   `json:"url"`
+	Description string   `json:"description"`
+	Tags        []string `json:"tags"`
+}
+
+func (b *BookmarkRequest) Validate() error {
+	if b.URL == "" {
+		return fmt.Errorf("url is required")
+	}
+
+	if b.Description == "" {
+		return fmt.Errorf("description is required")
+	}
+	return nil
+
+}
+
 func NewBookmarkHandler(l *slog.Logger, s BookmarkService) *BookmarkHandler {
 	return &BookmarkHandler{
 		service: s,
@@ -46,30 +65,30 @@ func (h *BookmarkHandler) GetHandler() http.HandlerFunc {
 		idParam := chi.URLParam(r, "id")
 		if idParam == "" {
 			h.logger.Error("id is required")
-			encodeError(w, http.StatusBadRequest, errors.New("id is required"))
+			server.EncodeError(w, http.StatusBadRequest, errors.New("id is required"))
 			return
 		}
 
 		bookmarkID, err := uuid.Parse(idParam)
 		if err != nil {
 			h.logger.Error(fmt.Sprintf("error parsing id: %v", err))
-			encodeError(w, http.StatusBadRequest, fmt.Errorf("invalid id: %v", err))
+			server.EncodeError(w, http.StatusBadRequest, fmt.Errorf("invalid id: %v", err))
 			return
 		}
 
 		bookmark, err := h.service.GetBookmark(r.Context(), bookmarkID)
 		if err != nil {
 			h.logger.Error(fmt.Sprintf("error getting bookmark: %v", err))
-			encodeError(w, http.StatusInternalServerError, errors.New("error getting bookmark"))
+			server.EncodeError(w, http.StatusInternalServerError, errors.New("error getting bookmark"))
 			return
 		}
 
 		if bookmark == nil {
-			encodeError(w, http.StatusNotFound, errors.New("bookmark not found"))
+			server.EncodeError(w, http.StatusNotFound, errors.New("bookmark not found"))
 			return
 		}
 
-		encodeData(w, http.StatusOK, BookmarkResponse{
+		server.EncodeData(w, http.StatusOK, BookmarkResponse{
 			ID:          bookmark.ID.String(),
 			URL:         bookmark.URL,
 			Description: bookmark.Description,
@@ -81,34 +100,11 @@ func (h *BookmarkHandler) GetHandler() http.HandlerFunc {
 }
 
 func (h *BookmarkHandler) PostHandler() http.HandlerFunc {
-	type request struct {
-		URL         string   `json:"url"`
-		Description string   `json:"description"`
-		Tags        []string `json:"tags"`
-	}
-
-	validate := func(req request) error {
-		if req.URL == "" {
-			return fmt.Errorf("url is required")
-		}
-
-		if req.Description == "" {
-			return fmt.Errorf("description is required")
-		}
-		return nil
-	}
-
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req request
-		if err := render.DecodeJSON(r.Body, &req); err != nil {
-			h.logger.Error(fmt.Sprintf("error decoding request json: %v", err))
-			encodeError(w, http.StatusBadRequest, errors.New("invalid json"))
-			return
-		}
-
-		if err := validate(req); err != nil {
-			h.logger.Error(fmt.Sprintf("error validating bookmark request: %v", err))
-			encodeError(w, http.StatusBadRequest, err)
+		var req BookmarkRequest
+		if err := server.Decode(r, &req); err != nil {
+			h.logger.Error(fmt.Sprintf("error decoding request: %v", err))
+			server.EncodeError(w, http.StatusBadRequest, fmt.Errorf("error decoding request: %v", err))
 			return
 		}
 
@@ -121,11 +117,11 @@ func (h *BookmarkHandler) PostHandler() http.HandlerFunc {
 		bookmark, err := h.service.PostBookmark(r.Context(), b)
 		if err != nil {
 			h.logger.Error(fmt.Sprintf("error creating bookmark: %v", err))
-			encodeError(w, http.StatusInternalServerError, errors.New("error creating bookmark"))
+			server.EncodeError(w, http.StatusInternalServerError, errors.New("error creating bookmark"))
 			return
 		}
 
-		encodeData(w, http.StatusOK, BookmarkResponse{
+		server.EncodeData(w, http.StatusOK, BookmarkResponse{
 			ID:          bookmark.ID.String(),
 			URL:         bookmark.URL,
 			Description: bookmark.Description,

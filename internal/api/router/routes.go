@@ -1,28 +1,15 @@
 package router
 
 import (
-	"net/http"
-
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
 	"github.com/lewisje1991/code-bookmarks/internal/api/handlers"
+	"github.com/lewisje1991/code-bookmarks/internal/platform/server"
 )
 
-func Routes(bh *handlers.BookmarkHandler, nh *handlers.NotesHandler) *chi.Mux {
-	r := chi.NewRouter()
-	r.Use(middleware.AllowContentType("application/json"))
-
+func AddRoutes(server *server.Server, bh *handlers.BookmarkHandler, nh *handlers.NotesHandler) {
 	// Bookmarks
-	r.Post("/bookmark", bh.PostHandler())
-	r.Get("/bookmark/{id}", bh.GetHandler())
+	server.AddRoute("POST", "/bookmark", bh.PostHandler())
+	server.AddRoute("GET", "/bookmark/{id}", bh.GetHandler())
 
 	// Notes
-	r.Get("/note", nh.GetHandler())
-
-	// Misc
-	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(404)
-	})
-
-	return r
+	server.AddRoute("POST", "/note", nh.PostHandler())
 }

@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-chi/render"
 	"github.com/google/uuid"
 	"github.com/lewisje1991/code-bookmarks/internal/domain/notes"
+	"github.com/lewisje1991/code-bookmarks/internal/platform/server"
 )
 
 type NoteService interface {
@@ -43,29 +43,23 @@ type NoteRequest struct {
 	Content string `json:"content"`
 }
 
-func (h *NotesHandler) PostHandler() http.HandlerFunc {
-	validate := func(req NoteRequest) error {
-		if req.Title == "" {
-			return fmt.Errorf("title is required")
-		}
-
-		if req.Content == "" {
-			return fmt.Errorf("content is required")
-		}
-		return nil
+func (n *NoteRequest) Validate() error {
+	if n.Title == "" {
+		return fmt.Errorf("title is required")
 	}
 
+	if n.Content == "" {
+		return fmt.Errorf("content is required")
+	}
+	return nil
+}
+
+func (h *NotesHandler) PostHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req NoteRequest
-		if err := render.DecodeJSON(r.Body, &req); err != nil {
+		if err := server.Decode(r, &req); err != nil {
 			h.logger.Error(fmt.Sprintf("error decoding request json: %v", err))
-			encodeError(w, http.StatusBadRequest, errors.New("invalid json"))
-			return
-		}
-
-		if err := validate(req); err != nil {
-			h.logger.Error(fmt.Sprintf("error validating note request: %v", err))
-			encodeError(w, http.StatusBadRequest, err)
+			server.EncodeError(w, http.StatusBadRequest, errors.New("invalid json"))
 			return
 		}
 
@@ -75,11 +69,11 @@ func (h *NotesHandler) PostHandler() http.HandlerFunc {
 		})
 		if err != nil {
 			h.logger.Error(fmt.Sprintf("error saving note: %v", err))
-			encodeError(w, http.StatusInternalServerError, errors.New("error saving note"))
+			server.EncodeError(w, http.StatusInternalServerError, errors.New("error saving note"))
 			return
 		}
 
-		encodeData(w, http.StatusOK, NoteResponseData{
+		server.EncodeData(w, http.StatusOK, NoteResponseData{
 			Title:     savedNote.Title,
 			Content:   savedNote.Content,
 			Tags:      savedNote.Tags,

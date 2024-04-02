@@ -16,6 +16,7 @@ import (
 	"github.com/lewisje1991/code-bookmarks/internal/api/handlers"
 	"github.com/lewisje1991/code-bookmarks/internal/api/handlers/mocks"
 	"github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
+	"github.com/lewisje1991/code-bookmarks/internal/platform/server"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -31,7 +32,7 @@ func TestBookmarks_Get(t *testing.T) {
 
 		handler.ServeHTTP(rr, req)
 
-		want := handlers.ErrorResponse{
+		want := server.ErrorResponse{
 			Error: "id is required",
 		}
 
@@ -52,7 +53,7 @@ func TestBookmarks_Get(t *testing.T) {
 
 		handler.ServeHTTP(rr, req)
 
-		want := handlers.ErrorResponse{
+		want := server.ErrorResponse{
 			Error: "invalid id: invalid UUID length: 12",
 		}
 
@@ -98,7 +99,7 @@ func TestBookmarks_Get(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler.ServeHTTP(rr, req)
 
-		want := handlers.ErrorResponse{
+		want := server.ErrorResponse{
 			Error: "bookmark not found",
 		}
 

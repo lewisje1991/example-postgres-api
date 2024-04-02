@@ -1,4 +1,4 @@
-package handlers
+package server
 
 import (
 	"encoding/json"
@@ -10,7 +10,7 @@ type ErrorResponse struct {
 	Error string `json:"error,omitempty"`
 }
 
-func encodeError(w http.ResponseWriter, status int, err error) error {
+func EncodeError(w http.ResponseWriter, status int, err error) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 
@@ -20,7 +20,7 @@ func encodeError(w http.ResponseWriter, status int, err error) error {
 	return nil
 }
 
-func encodeData[T any](w http.ResponseWriter, status int, v T) error {
+func EncodeData[T any](w http.ResponseWriter, status int, v T) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 

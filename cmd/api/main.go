@@ -11,10 +11,11 @@ import (
 
 	"github.com/lewisje1991/code-bookmarks/internal/api/handlers"
 	"github.com/lewisje1991/code-bookmarks/internal/api/router"
-	"github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
+	bookmarks "github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
 	"github.com/lewisje1991/code-bookmarks/internal/domain/notes"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/config"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/postgres"
+	"github.com/lewisje1991/code-bookmarks/internal/platform/server"
 )
 
 // TODO: setup fly.io api hosting
@@ -56,10 +57,11 @@ func main() {
 	notesService := notes.NewService(notesStore)
 	notesHandler := handlers.NewNotesHandler(notesService, logger)
 
-	router := router.Routes(booksmarksHandler, notesHandler)
+	server := server.NewServer()
+	router.AddRoutes(server, booksmarksHandler, notesHandler)
 
 	logger.Info(fmt.Sprintf("starting server on port:%d", config.HostPort))
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", config.HostPort), router); err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", config.HostPort), server); err != nil {
 		logger.Error(fmt.Sprintf("failed to start server: %v", err))
 		os.Exit(1)
 	}

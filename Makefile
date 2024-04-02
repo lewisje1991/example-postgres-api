@@ -6,7 +6,6 @@ gen-env-local:
 
 .PHONY: up
 up: 
-	# @templ generate
 	@docker compose run --build -p 8080:8080 api 
 
 .PHONY: tools
@@ -23,7 +22,7 @@ sqlc:
 .PHONY: migrate-local
 migrate-local:
 	@echo "Migrating database..."
-	@atlas schema apply --env local
+	@atlas schema apply --env local --var password=$(password)
 
 .PHONY: migrate-supa
 migrate-supa:

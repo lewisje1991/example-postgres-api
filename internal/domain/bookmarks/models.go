@@ -1,8 +1,6 @@
 package bookmarks
 
 import (
-	"errors"
-	"net/url"
 	"time"
 
 	"github.com/google/uuid"
@@ -17,10 +15,3 @@ type Bookmark struct {
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
-func (b *Bookmark) Validate() error {
-	_, err := url.ParseRequestURI(b.URL)
-	if err != nil {
-		return errors.New("invalid url")
-	}
-	return nil
-}
