@@ -7,5 +7,5 @@ sql:
       go:
         package: "postgres"
         emit_prepared_queries: true
-        out: "internal/platform/postgres"
+        out: "internal/foundation/postgres"
         sql_package: "pgx/v5"
