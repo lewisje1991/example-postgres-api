@@ -1,7 +1,7 @@
 package notes
 
 import (
-	"github.com/lewisje1991/code-bookmarks/internal/platform/server"
+	"github.com/lewisje1991/code-bookmarks/internal/foundation/server"
 )
 
 func AddRoutes(server *server.Server, h *Handler) {

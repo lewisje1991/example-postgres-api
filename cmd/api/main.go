@@ -13,9 +13,9 @@ import (
 	appnotes "github.com/lewisje1991/code-bookmarks/internal/app/notes"
 	domainbookmarks "github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
 	domainnotes "github.com/lewisje1991/code-bookmarks/internal/domain/notes"
-	"github.com/lewisje1991/code-bookmarks/internal/platform/config"
-	"github.com/lewisje1991/code-bookmarks/internal/platform/postgres"
-	"github.com/lewisje1991/code-bookmarks/internal/platform/server"
+	"github.com/lewisje1991/code-bookmarks/internal/foundation/config"
+	"github.com/lewisje1991/code-bookmarks/internal/foundation/postgres"
+	"github.com/lewisje1991/code-bookmarks/internal/foundation/server"
 )
 
 // TODO: authentication

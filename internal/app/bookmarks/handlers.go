@@ -10,7 +10,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"
 	domain "github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
-	"github.com/lewisje1991/code-bookmarks/internal/platform/server"
+	"github.com/lewisje1991/code-bookmarks/internal/foundation/server"
 )
 
 type Handler struct {

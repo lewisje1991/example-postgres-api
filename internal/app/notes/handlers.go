@@ -8,7 +8,7 @@ import (
 	"time"
 
 	domain "github.com/lewisje1991/code-bookmarks/internal/domain/notes"
-	"github.com/lewisje1991/code-bookmarks/internal/platform/server"
+	"github.com/lewisje1991/code-bookmarks/internal/foundation/server"
 )
 
 type Handler struct {

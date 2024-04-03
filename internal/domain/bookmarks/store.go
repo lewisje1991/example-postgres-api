@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/lewisje1991/code-bookmarks/internal/platform/postgres"
+	"github.com/lewisje1991/code-bookmarks/internal/foundation/postgres"
 )
 
 type Store struct {
