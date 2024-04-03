@@ -9,10 +9,10 @@ import (
 
 	"log/slog"
 
-	"github.com/lewisje1991/code-bookmarks/internal/app/handlers"
-	"github.com/lewisje1991/code-bookmarks/internal/app/router"
-	"github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
-	"github.com/lewisje1991/code-bookmarks/internal/domain/notes"
+	appbookmarks "github.com/lewisje1991/code-bookmarks/internal/app/bookmarks"
+	appnotes "github.com/lewisje1991/code-bookmarks/internal/app/notes"
+	domainbookmarks "github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
+	domainnotes "github.com/lewisje1991/code-bookmarks/internal/domain/notes"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/config"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/postgres"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/server"
@@ -54,16 +54,17 @@ func Run() error {
 	}
 	defer db.Close()
 
-	bookmarksStore := bookmarks.NewStore(db)
-	booksmarksService := bookmarks.NewService(bookmarksStore)
-	booksmarksHandler := handlers.NewBookmarkHandler(logger, booksmarksService)
-
-	notesStore := notes.NewStore(db)
-	notesService := notes.NewService(notesStore)
-	notesHandler := handlers.NewNotesHandler(notesService, logger)
-
 	server := server.NewServer()
-	router.AddRoutes(server, booksmarksHandler, notesHandler)
+
+	bookmarksStore := domainbookmarks.NewStore(db)
+	booksmarksService := domainbookmarks.NewService(bookmarksStore)
+	booksmarksHandler := appbookmarks.NewHandler(logger, booksmarksService)
+	appbookmarks.AddRoutes(server, booksmarksHandler)
+
+	notesStore := domainnotes.NewStore(db)
+	notesService := domainnotes.NewService(notesStore)
+	notesHandler := appnotes.NewHandler(notesService, logger)
+	appnotes.AddRoutes(server, notesHandler)
 
 	logger.Info(fmt.Sprintf("starting server on port:%d", config.HostPort))
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", config.HostPort), server); err != nil {

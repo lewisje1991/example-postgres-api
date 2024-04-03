@@ -1,7 +1,6 @@
-package handlers
+package bookmarks
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -9,58 +8,24 @@ import (
 	"log/slog"
 
 	"github.com/go-chi/chi"
-	"github.com/go-chi/render"
 	"github.com/google/uuid"
-	"github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
+	domain "github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
 	"github.com/lewisje1991/code-bookmarks/internal/platform/server"
 )
 
-// go:generate mockgen -source=bookmarks.go -destination=mocks/bookmarks.go -package=mocks
-type BookmarkService interface {
-	GetBookmark(ctx context.Context, id uuid.UUID) (*bookmarks.Bookmark, error)
-	PostBookmark(ctx context.Context, bookmark *bookmarks.Bookmark) (*bookmarks.Bookmark, error)
-}
-
-type BookmarkHandler struct {
-	service BookmarkService
+type Handler struct {
+	service *domain.Service
 	logger  *slog.Logger
 }
 
-type BookmarkResponse struct {
-	ID          string   `json:"id,omitempty"`
-	URL         string   `json:"url,omitempty"`
-	Description string   `json:"description,omitempty"`
-	Tags        []string `json:"tags,omitempty"`
-	CreatedAt   string   `json:"createdAt,omitempty"`
-	UpdatedAt   string   `json:"updatedAt,omitempty"`
-}
-
-type BookmarkRequest struct {
-	URL         string   `json:"url"`
-	Description string   `json:"description"`
-	Tags        []string `json:"tags"`
-}
-
-func (b *BookmarkRequest) Validate() error {
-	if b.URL == "" {
-		return fmt.Errorf("url is required")
-	}
-
-	if b.Description == "" {
-		return fmt.Errorf("description is required")
-	}
-	return nil
-
-}
-
-func NewBookmarkHandler(l *slog.Logger, s BookmarkService) *BookmarkHandler {
-	return &BookmarkHandler{
+func NewHandler(l *slog.Logger, s *domain.Service) *Handler {
+	return &Handler{
 		service: s,
 		logger:  l,
 	}
 }
 
-func (h *BookmarkHandler) GetHandler() http.HandlerFunc {
+func (h *Handler) GetHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		idParam := chi.URLParam(r, "id")
 		if idParam == "" {
@@ -88,7 +53,7 @@ func (h *BookmarkHandler) GetHandler() http.HandlerFunc {
 			return
 		}
 
-		server.EncodeData(w, http.StatusOK, BookmarkResponse{
+		server.EncodeData(w, http.StatusOK, Response{
 			ID:          bookmark.ID.String(),
 			URL:         bookmark.URL,
 			Description: bookmark.Description,
@@ -99,20 +64,16 @@ func (h *BookmarkHandler) GetHandler() http.HandlerFunc {
 	}
 }
 
-func (h *BookmarkHandler) PostHandler() http.HandlerFunc {
+func (h *Handler) PostHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req BookmarkRequest
+		var req Request
 		if err := server.Decode(r, &req); err != nil {
 			h.logger.Error(fmt.Sprintf("error decoding request: %v", err))
 			server.EncodeError(w, http.StatusBadRequest, fmt.Errorf("error decoding request: %v", err))
 			return
 		}
 
-		b := &bookmarks.Bookmark{
-			URL:         req.URL,
-			Tags:        req.Tags,
-			Description: req.Description,
-		}
+		b := req.ToBookmark()
 
 		bookmark, err := h.service.PostBookmark(r.Context(), b)
 		if err != nil {
@@ -121,7 +82,7 @@ func (h *BookmarkHandler) PostHandler() http.HandlerFunc {
 			return
 		}
 
-		server.EncodeData(w, http.StatusOK, BookmarkResponse{
+		server.EncodeData(w, http.StatusOK, Response{
 			ID:          bookmark.ID.String(),
 			URL:         bookmark.URL,
 			Description: bookmark.Description,
@@ -130,9 +91,4 @@ func (h *BookmarkHandler) PostHandler() http.HandlerFunc {
 			UpdatedAt:   bookmark.UpdatedAt.String(),
 		})
 	}
-}
-
-func sendResponse(w http.ResponseWriter, r *http.Request, statusCode int, resp any) {
-	render.Status(r, statusCode)
-	render.JSON(w, r, resp)
 }
