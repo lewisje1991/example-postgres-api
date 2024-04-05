@@ -29,6 +29,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.mux.ServeHTTP(w, r)
 }
 
-func (s *Server) AddRoute(method, pattern string, handler http.HandlerFunc) {
+func (s *Server) AddRoute(method, pattern string, handler http.Handler) {
 	s.mux.Method(method, pattern, handler)
 }
