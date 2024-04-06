@@ -18,8 +18,8 @@ import (
 	"github.com/lewisje1991/code-bookmarks/internal/foundation/server"
 )
 
-// TODO: authentication
-// TODO: authorization
+// TODO: authorization/RBAC
+// TODO: use supabase cli to run locally
 // TODO: openai integration for tagging
 // TODO: use expo to build a mobile app
 
