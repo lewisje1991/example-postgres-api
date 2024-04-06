@@ -13,14 +13,13 @@ import (
 )
 
 func IsAuthenticated(jwtSecret string, next http.Handler) http.Handler {
-	// TODO validate algo
 	parseJWTToken := func(token string, hmacSecret []byte) (string, error) {
 		t, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
 			return hmacSecret, nil
-		})
+		}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name}))
 
 		if err != nil {
 			return "", fmt.Errorf("error validating token: %v", err)
@@ -49,7 +48,7 @@ func IsAuthenticated(jwtSecret string, next http.Handler) http.Handler {
 			return
 		}
 
-		log.Printf("Received request from %s", userID)
+		log.Printf("received request from userID:[%s]", userID)
 
 		// Save the email in the context to use later in the handler
 		ctx := context.WithValue(r.Context(), "userID", userID) // TODO use a key
