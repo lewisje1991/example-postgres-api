@@ -20,6 +20,7 @@ import (
 
 // TODO: authorization/RBAC
 // TODO: use supabase cli to run locally
+// TODO: import bookmarks via export html
 // TODO: openai integration for tagging
 // TODO: use expo to build a mobile app
 
