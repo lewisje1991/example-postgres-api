@@ -59,7 +59,7 @@ func Run() error {
 	bookmarksStore := domainbookmarks.NewStore(db)
 	booksmarksService := domainbookmarks.NewService(bookmarksStore)
 	booksmarksHandler := appbookmarks.NewHandler(logger, booksmarksService)
-	appbookmarks.AddRoutes(server, booksmarksHandler)
+	appbookmarks.AddRoutes(server, booksmarksHandler, config.AuthSecret)
 
 	notesStore := domainnotes.NewStore(db)
 	notesService := domainnotes.NewService(notesStore)
