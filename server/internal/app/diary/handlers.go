@@ -1,6 +1,7 @@
 package diary
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 	"time"
@@ -24,7 +25,12 @@ func NewHandler(l *slog.Logger, s *domain.Service) *Handler {
 func (h *Handler) PostHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		diaryEntry := h.service.NewDiaryEntry(r.Context())
+		diaryEntry, err := h.service.NewDiaryEntry(r.Context())
+		if err != nil {
+			h.logger.Error(fmt.Sprintf("error creating new entry: %v", err))
+			server.EncodeError(w, http.StatusInternalServerError, fmt.Errorf("error creating new entry: %v", err))
+			return
+		}
 
 		var tasks []Task
 		for _, task := range diaryEntry.Tasks {

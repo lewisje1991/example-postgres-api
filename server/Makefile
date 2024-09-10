@@ -5,7 +5,7 @@ gen-env-local:
 	@echo "DB_URL=postgres://postgres:postgres@db:5432/code-bookmarks?sslmode=disable" >> .env
 
 .PHONY: up
-up: 
+up: migrate-local
 	@docker compose run --build -p 8080:8080 api 
 
 .PHONY: tools

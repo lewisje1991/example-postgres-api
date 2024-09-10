@@ -45,6 +45,34 @@ func (q *Queries) CreateBookmark(ctx context.Context, arg CreateBookmarkParams) 
 	return i, err
 }
 
+const createDiary = `-- name: CreateDiary :one
+INSERT INTO diary (id, day, created_at, updated_at) VALUES ($1, $2, $3, $4) RETURNING id, day, created_at, updated_at
+`
+
+type CreateDiaryParams struct {
+	ID        pgtype.UUID
+	Day       pgtype.Date
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
+}
+
+func (q *Queries) CreateDiary(ctx context.Context, arg CreateDiaryParams) (Diary, error) {
+	row := q.db.QueryRow(ctx, createDiary,
+		arg.ID,
+		arg.Day,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+	)
+	var i Diary
+	err := row.Scan(
+		&i.ID,
+		&i.Day,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const createNote = `-- name: CreateNote :one
 INSERT INTO notes (id, title, content, tags, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, title, content, tags, created_at, updated_at
 `

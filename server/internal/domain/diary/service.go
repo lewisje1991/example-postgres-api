@@ -8,14 +8,16 @@ import (
 )
 
 type Service struct {
+	store *Store
 }
 
-func NewService() *Service {
-	return &Service{}
+func NewService(s *Store) *Service {
+	return &Service{
+		store: s,
+	}
 }
-
-func (s *Service) NewDiaryEntry(ctx context.Context) Diary {
-	return Diary{
+func (s *Service) NewDiaryEntry(ctx context.Context) (Diary, error) {
+	entity := Diary{
 		ID:  uuid.New(),
 		Day: time.Now(),
 		Tasks: []Task{
@@ -26,4 +28,6 @@ func (s *Service) NewDiaryEntry(ctx context.Context) Diary {
 			},
 		},
 	}
+
+	return s.store.CreateDiary(ctx, entity)
 }

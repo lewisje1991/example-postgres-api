@@ -10,11 +10,11 @@ import (
 	"log/slog"
 
 	appbookmarks "github.com/lewisje1991/code-bookmarks/internal/app/bookmarks"
-	appnotes "github.com/lewisje1991/code-bookmarks/internal/app/notes"
 	appdiary "github.com/lewisje1991/code-bookmarks/internal/app/diary"
+	appnotes "github.com/lewisje1991/code-bookmarks/internal/app/notes"
 	domainbookmarks "github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
-	domainnotes "github.com/lewisje1991/code-bookmarks/internal/domain/notes"
 	domaindiary "github.com/lewisje1991/code-bookmarks/internal/domain/diary"
+	domainnotes "github.com/lewisje1991/code-bookmarks/internal/domain/notes"
 	"github.com/lewisje1991/code-bookmarks/internal/foundation/config"
 	"github.com/lewisje1991/code-bookmarks/internal/foundation/postgres"
 	"github.com/lewisje1991/code-bookmarks/internal/foundation/server"
@@ -69,7 +69,8 @@ func Run() error {
 	notesHandler := appnotes.NewHandler(notesService, logger)
 	appnotes.AddRoutes(server, notesHandler)
 
-	diaryService := domaindiary.NewService()
+	diaryStore := domaindiary.NewStore(db)
+	diaryService := domaindiary.NewService(diaryStore)
 	diaryHandler := appdiary.NewHandler(logger, diaryService)
 	appdiary.AddRoutes(server, diaryHandler)
 

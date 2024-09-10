@@ -17,6 +17,13 @@ type Bookmark struct {
 	UpdatedAt   pgtype.Timestamp
 }
 
+type Diary struct {
+	ID        pgtype.UUID
+	Day       pgtype.Date
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
+}
+
 type Note struct {
 	ID        pgtype.UUID
 	Title     string
