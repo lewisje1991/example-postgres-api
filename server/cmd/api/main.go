@@ -11,8 +11,10 @@ import (
 
 	appbookmarks "github.com/lewisje1991/code-bookmarks/internal/app/bookmarks"
 	appnotes "github.com/lewisje1991/code-bookmarks/internal/app/notes"
+	appdiary "github.com/lewisje1991/code-bookmarks/internal/app/diary"
 	domainbookmarks "github.com/lewisje1991/code-bookmarks/internal/domain/bookmarks"
 	domainnotes "github.com/lewisje1991/code-bookmarks/internal/domain/notes"
+	domaindiary "github.com/lewisje1991/code-bookmarks/internal/domain/diary"
 	"github.com/lewisje1991/code-bookmarks/internal/foundation/config"
 	"github.com/lewisje1991/code-bookmarks/internal/foundation/postgres"
 	"github.com/lewisje1991/code-bookmarks/internal/foundation/server"
@@ -66,6 +68,10 @@ func Run() error {
 	notesService := domainnotes.NewService(notesStore)
 	notesHandler := appnotes.NewHandler(notesService, logger)
 	appnotes.AddRoutes(server, notesHandler)
+
+	diaryService := domaindiary.NewService()
+	diaryHandler := appdiary.NewHandler(logger, diaryService)
+	appdiary.AddRoutes(server, diaryHandler)
 
 	logger.Info(fmt.Sprintf("starting server on port:%d", config.HostPort))
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", config.HostPort), server); err != nil {
