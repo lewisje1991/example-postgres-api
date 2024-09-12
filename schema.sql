@@ -16,3 +16,9 @@ CREATE TABLE IF NOT EXISTS "tasks" (
     "updated_at" timestamp NOT NULL, 
     PRIMARY KEY ("id")
 );
+
+CREATE TABLE IF NOT EXISTS "task_diary" (
+    "task_id" uuid NOT NULL, 
+    "diary_id" uuid NOT NULL, 
+    PRIMARY KEY ("task_id", "diary_id")
+);

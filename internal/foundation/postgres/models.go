@@ -8,27 +8,9 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type Bookmark struct {
-	ID          pgtype.UUID
-	Url         string
-	Description string
-	Tags        string
-	CreatedAt   pgtype.Timestamp
-	UpdatedAt   pgtype.Timestamp
-}
-
 type Diary struct {
 	ID        pgtype.UUID
 	Day       pgtype.Date
-	CreatedAt pgtype.Timestamp
-	UpdatedAt pgtype.Timestamp
-}
-
-type Note struct {
-	ID        pgtype.UUID
-	Title     string
-	Content   string
-	Tags      string
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 }
@@ -41,4 +23,9 @@ type Task struct {
 	Tags      string
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
+}
+
+type TaskDiary struct {
+	TaskID  pgtype.UUID
+	DiaryID pgtype.UUID
 }
