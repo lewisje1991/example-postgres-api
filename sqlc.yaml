@@ -9,3 +9,4 @@ sql:
         emit_prepared_queries: true
         out: "internal/foundation/postgres"
         sql_package: "pgx/v5"
+  

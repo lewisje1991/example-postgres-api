@@ -11,6 +11,22 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const addTaskToDiary = `-- name: AddTaskToDiary :one
+INSERT INTO task_diary (task_id, diary_id) VALUES ($1, $2) RETURNING task_id, diary_id
+`
+
+type AddTaskToDiaryParams struct {
+	TaskID  pgtype.UUID
+	DiaryID pgtype.UUID
+}
+
+func (q *Queries) AddTaskToDiary(ctx context.Context, arg AddTaskToDiaryParams) (TaskDiary, error) {
+	row := q.db.QueryRow(ctx, addTaskToDiary, arg.TaskID, arg.DiaryID)
+	var i TaskDiary
+	err := row.Scan(&i.TaskID, &i.DiaryID)
+	return i, err
+}
+
 const createDiary = `-- name: CreateDiary :one
 INSERT INTO diary (id, day, created_at, updated_at) VALUES ($1, $2, $3, $4) RETURNING id, day, created_at, updated_at
 `
@@ -33,6 +49,160 @@ func (q *Queries) CreateDiary(ctx context.Context, arg CreateDiaryParams) (Diary
 	err := row.Scan(
 		&i.ID,
 		&i.Day,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const createTask = `-- name: CreateTask :one
+INSERT INTO tasks (id, title, content, status, tags, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, title, content, status, tags, created_at, updated_at
+`
+
+type CreateTaskParams struct {
+	ID        pgtype.UUID
+	Title     string
+	Content   string
+	Status    string
+	Tags      string
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
+}
+
+func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Task, error) {
+	row := q.db.QueryRow(ctx, createTask,
+		arg.ID,
+		arg.Title,
+		arg.Content,
+		arg.Status,
+		arg.Tags,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+	)
+	var i Task
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Content,
+		&i.Status,
+		&i.Tags,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getDiary = `-- name: GetDiary :one
+SELECT id, day, created_at, updated_at FROM diary WHERE id = $1
+`
+
+func (q *Queries) GetDiary(ctx context.Context, id pgtype.UUID) (Diary, error) {
+	row := q.db.QueryRow(ctx, getDiary, id)
+	var i Diary
+	err := row.Scan(
+		&i.ID,
+		&i.Day,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getTask = `-- name: GetTask :one
+SELECT id, title, content, status, tags, created_at, updated_at FROM tasks WHERE id = $1
+`
+
+func (q *Queries) GetTask(ctx context.Context, id pgtype.UUID) (Task, error) {
+	row := q.db.QueryRow(ctx, getTask, id)
+	var i Task
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Content,
+		&i.Status,
+		&i.Tags,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getTasksByDiary = `-- name: GetTasksByDiary :many
+SELECT tasks.id, tasks.title, tasks.content, tasks.status, tasks.tags, tasks.created_at, tasks.updated_at FROM tasks JOIN task_diary ON tasks.id = task_diary.task_id WHERE task_diary.diary_id = $1
+`
+
+func (q *Queries) GetTasksByDiary(ctx context.Context, diaryID pgtype.UUID) ([]Task, error) {
+	rows, err := q.db.Query(ctx, getTasksByDiary, diaryID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Task
+	for rows.Next() {
+		var i Task
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Content,
+			&i.Status,
+			&i.Tags,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateTaskContent = `-- name: UpdateTaskContent :one
+UPDATE tasks SET content = $2, updated_at = $3 WHERE id = $1 RETURNING id, title, content, status, tags, created_at, updated_at
+`
+
+type UpdateTaskContentParams struct {
+	ID        pgtype.UUID
+	Content   string
+	UpdatedAt pgtype.Timestamp
+}
+
+func (q *Queries) UpdateTaskContent(ctx context.Context, arg UpdateTaskContentParams) (Task, error) {
+	row := q.db.QueryRow(ctx, updateTaskContent, arg.ID, arg.Content, arg.UpdatedAt)
+	var i Task
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Content,
+		&i.Status,
+		&i.Tags,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateTaskStatus = `-- name: UpdateTaskStatus :one
+UPDATE tasks SET status = $2, updated_at = $3 WHERE id = $1 RETURNING id, title, content, status, tags, created_at, updated_at
+`
+
+type UpdateTaskStatusParams struct {
+	ID        pgtype.UUID
+	Status    string
+	UpdatedAt pgtype.Timestamp
+}
+
+func (q *Queries) UpdateTaskStatus(ctx context.Context, arg UpdateTaskStatusParams) (Task, error) {
+	row := q.db.QueryRow(ctx, updateTaskStatus, arg.ID, arg.Status, arg.UpdatedAt)
+	var i Task
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Content,
+		&i.Status,
+		&i.Tags,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
