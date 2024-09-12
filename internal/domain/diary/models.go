@@ -12,6 +12,11 @@ type Diary struct {
 	Tasks []Task
 }
 
+type DiaryWithTasks struct {
+	Diary
+	Tasks []Task
+}
+
 type Task struct {
 	ID     string
 	Name   string

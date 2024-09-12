@@ -1,4 +1,4 @@
-package task
+package tasks
 
 import (
 	"log/slog"
@@ -12,7 +12,7 @@ type Handler struct {
 	logger  *slog.Logger
 }
 
-func NewHandler(s *domain.Service, l *slog.Logger) *Handler {
+func NewHandler(l *slog.Logger, s *domain.Service) *Handler {
 	return &Handler{
 		service: s,
 		logger:  l,
@@ -21,6 +21,6 @@ func NewHandler(s *domain.Service, l *slog.Logger) *Handler {
 
 func (h *Handler) PostHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		
+
 	}
 }

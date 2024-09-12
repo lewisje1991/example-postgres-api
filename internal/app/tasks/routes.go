@@ -1,4 +1,4 @@
-package notes
+package tasks
 
 import (
 	"github.com/lewisje1991/code-bookmarks/internal/foundation/server"

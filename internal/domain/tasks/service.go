@@ -1,8 +1,11 @@
 package tasks
 
 type Service struct {
+	store *Store
 }
 
-func NewService() *Service {
-	return &Service{}
+func NewService(s *Store) *Service {
+	return &Service{
+		store: s,
+	}
 }
