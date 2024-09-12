@@ -32,3 +32,13 @@ type Note struct {
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 }
+
+type Task struct {
+	ID        pgtype.UUID
+	Title     string
+	Content   string
+	Status    string
+	Tags      string
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
+}
