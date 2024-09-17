@@ -22,7 +22,7 @@ func NewHandler(l *slog.Logger, s *domain.Service) *Handler {
 	}
 }
 
-func (h *Handler) NewDiaryEntryHandler() http.HandlerFunc {
+func (h *Handler) NewDiaryHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		diaryEntry, err := h.service.NewDiaryEntry(r.Context(), time.Now())
@@ -47,25 +47,5 @@ func (h *Handler) NewDiaryEntryHandler() http.HandlerFunc {
 			Date:  diaryEntry.Day.Format(time.DateOnly),
 			Tasks: tasks,
 		})
-	}
-}
-
-func (h *Handler) CreateTaskForDiaryHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		diaryID := r.URL.Query().Get("diaryID")
-		var task Task
-		if err := server.Decode(r, &task); err != nil {
-			h.logger.Error(fmt.Sprintf("error decoding task: %v", err))
-			server.EncodeError(w, http.StatusBadRequest, fmt.Errorf("error decoding task: %v", err))
-			return
-		}
-
-		task, err := h.service.CreateTaskForDiary(r.Context(), diaryID, task.Name)
-		if err != nil {
-			h.logger.Error(fmt.Sprintf("error creating task for diary: %v", err))
-			server.EncodeError(w, http.StatusInternalServerError, fmt.Errorf("error creating task for diary: %v", err))
-			return
-		}
-		server.EncodeData(w, http.StatusOK, task)
 	}
 }
