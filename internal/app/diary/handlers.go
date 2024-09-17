@@ -25,7 +25,7 @@ func NewHandler(l *slog.Logger, s *domain.Service) *Handler {
 func (h *Handler) PostHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		diaryEntry, err := h.service.NewDiaryEntry(r.Context())
+		diaryEntry, err := h.service.NewDiaryEntry(r.Context(), time.Now())
 		if err != nil {
 			h.logger.Error(fmt.Sprintf("error creating new entry: %v", err))
 			server.EncodeError(w, http.StatusInternalServerError, fmt.Errorf("error creating new entry: %v", err))

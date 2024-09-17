@@ -108,6 +108,22 @@ func (q *Queries) GetDiary(ctx context.Context, id pgtype.UUID) (Diary, error) {
 	return i, err
 }
 
+const getDiaryByDay = `-- name: GetDiaryByDay :one
+SELECT id, day, created_at, updated_at FROM diary WHERE day = $1
+`
+
+func (q *Queries) GetDiaryByDay(ctx context.Context, day pgtype.Date) (Diary, error) {
+	row := q.db.QueryRow(ctx, getDiaryByDay, day)
+	var i Diary
+	err := row.Scan(
+		&i.ID,
+		&i.Day,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getTask = `-- name: GetTask :one
 SELECT id, title, content, status, tags, created_at, updated_at FROM tasks WHERE id = $1
 `
