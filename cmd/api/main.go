@@ -58,15 +58,15 @@ func Run() error {
 
 	server := server.NewServer()
 
-	diaryStore := domaindiary.NewStore(db)
-	diaryService := domaindiary.NewService(diaryStore)
-	diaryHandler := appdiary.NewHandler(logger, diaryService)
-	appdiary.AddRoutes(server, diaryHandler)
-
 	tasksStore := domaintasks.NewStore(db)
 	tasksService := domaintasks.NewService(tasksStore)
 	tasksHandler := apptasks.NewHandler(logger, tasksService)
 	apptasks.AddRoutes(server, tasksHandler)
+
+	diaryStore := domaindiary.NewStore(db)
+	diaryService := domaindiary.NewService(diaryStore, tasksService)
+	diaryHandler := appdiary.NewHandler(logger, diaryService)
+	appdiary.AddRoutes(server, diaryHandler)
 
 	logger.Info(fmt.Sprintf("starting server on port:%d", config.HostPort))
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", config.HostPort), server); err != nil {

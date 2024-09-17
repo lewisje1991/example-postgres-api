@@ -4,21 +4,15 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lewisje1991/code-bookmarks/internal/domain/tasks"
 )
 
 type Diary struct {
-	ID    uuid.UUID
-	Day   time.Time
-	Tasks []Task
+	ID  uuid.UUID
+	Day time.Time
 }
 
 type DiaryWithTasks struct {
 	Diary
-	Tasks []Task
-}
-
-type Task struct {
-	ID     string
-	Name   string
-	Status string
+	Tasks []tasks.Task
 }

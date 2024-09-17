@@ -35,8 +35,8 @@ func (h *Handler) NewDiaryHandler() http.HandlerFunc {
 		var tasks []Task
 		for _, task := range diaryEntry.Tasks {
 			t := Task{
-				ID:     task.ID,
-				Name:   task.Name,
+				ID:     task.ID.String(),
+				Name:   task.Title,
 				Status: task.Status,
 			}
 			tasks = append(tasks, t)
