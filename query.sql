@@ -1,7 +1,7 @@
 -- name: CreateDiary :one
 INSERT INTO diary (id, day, created_at, updated_at) VALUES ($1, $2, $3, $4) RETURNING *;
 
--- name: GetDiaryByDay :
+-- name: GetDiaryByDay :one
 SELECT * FROM diary WHERE day = $1;
 
 -- name: GetDiary :one
