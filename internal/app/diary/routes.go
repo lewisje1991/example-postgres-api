@@ -5,5 +5,6 @@ import (
 )
 
 func AddRoutes(server *server.Server, h *Handler) {
-	server.AddRoute("POST", "/diary", h.PostHandler())
+	server.AddRoute("POST", "/diary", h.NewDiaryEntryHandler())
+	server.AddRoute("POST", "/diary/{diaryID}/tasks", h.CreateTaskForDiaryHandler())
 }
