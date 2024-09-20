@@ -15,17 +15,25 @@ type Diary struct {
 	UpdatedAt pgtype.Timestamp
 }
 
-type Task struct {
-	ID        pgtype.UUID
-	Title     string
-	Content   string
-	Status    string
-	Tags      string
-	CreatedAt pgtype.Timestamp
-	UpdatedAt pgtype.Timestamp
+type DiaryTask struct {
+	DiaryID pgtype.UUID
+	TaskID  pgtype.UUID
+	Status  string
 }
 
-type TaskDiary struct {
-	TaskID  pgtype.UUID
-	DiaryID pgtype.UUID
+type Task struct {
+	ID          pgtype.UUID
+	Title       string
+	Description string
+	Tags        string
+	CreatedAt   pgtype.Timestamp
+	UpdatedAt   pgtype.Timestamp
+}
+
+type Worklog struct {
+	ID        pgtype.UUID
+	TaskID    pgtype.UUID
+	Content   string
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
 }

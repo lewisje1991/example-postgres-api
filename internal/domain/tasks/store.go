@@ -3,7 +3,6 @@ package tasks
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -26,10 +25,8 @@ func (s *Store) CreateTask(ctx context.Context, task Task) (Task, error) {
 			Bytes: task.ID,
 			Valid: true,
 		},
-		Title:   task.Title,
-		Content: task.Content,
-		Status:  task.Status,
-		Tags:    task.Tags,
+		Title: task.Title,
+		Tags:  task.Tags,
 		CreatedAt: pgtype.Timestamp{
 			Time:  task.CreatedAt,
 			Valid: true,
@@ -51,34 +48,12 @@ func (s *Store) GetTask(ctx context.Context, id uuid.UUID) (Task, error) {
 	queries := postgres.New(s.db)
 
 	res, err := queries.GetTask(ctx, pgtype.UUID{
-			Bytes: id,
-			Valid: true,
-		})
-
-	if err != nil {
-		return Task{}, fmt.Errorf("failed to execute get task query: %w", err)
-	}
-
-	return taskFromDB(res), nil
-}
-
-func (s *Store) UpdateTaskStatus(ctx context.Context, id uuid.UUID, status string) (Task, error) {
-	queries := postgres.New(s.db)
-
-	res, err := queries.UpdateTaskStatus(ctx, postgres.UpdateTaskStatusParams{
-		ID: pgtype.UUID{
-			Bytes: id,
-			Valid: true,
-		},
-		Status: status,
-		UpdatedAt: pgtype.Timestamp{
-			Time:  time.Now().UTC(),
-			Valid: true,
-		},
+		Bytes: id,
+		Valid: true,
 	})
 
 	if err != nil {
-		return Task{}, fmt.Errorf("failed to execute update task status query: %w", err)
+		return Task{}, fmt.Errorf("failed to execute get task query: %w", err)
 	}
 
 	return taskFromDB(res), nil
@@ -107,8 +82,6 @@ func taskFromDB(dbTask postgres.Task) Task {
 	return Task{
 		ID:        uuid.UUID(dbTask.ID.Bytes),
 		Title:     dbTask.Title,
-		Content:   dbTask.Content,
-		Status:    dbTask.Status,
 		Tags:      dbTask.Tags,
 		CreatedAt: dbTask.CreatedAt.Time,
 		UpdatedAt: dbTask.UpdatedAt.Time,
