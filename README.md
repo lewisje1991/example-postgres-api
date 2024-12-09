@@ -1,4 +1,4 @@
-# Work Journal
+# Code Bookmarks
 - Your work like digitised
 
 - Keep track of your daily work
