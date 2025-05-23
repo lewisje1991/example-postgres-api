@@ -5,15 +5,8 @@ gen-env-local:
 	@echo "DB_URL=postgres://postgres:postgres@db:5432/code-bookmarks?sslmode=disable" >> .env
 
 .PHONY: up
-up: 
+up:
 	@docker compose run --build -p 8080:8080 api 
-
-.PHONY: tools
-tools:
-	@brew install ariga/tap/atlas
-	@brew install sqlc
-	@brew install orbstack
-	@brew install bruno
 
 .PHONY: sqlc
 sqlc:
@@ -23,3 +16,10 @@ sqlc:
 migrate-local:
 	@echo "Migrating database..."
 	@atlas schema apply --env local --var password=$(password)
+
+.PHONY: tools
+tools:
+	@brew install ariga/tap/atlas
+	@brew install sqlc
+	@brew install orbstack
+	@brew install bruno

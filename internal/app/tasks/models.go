@@ -7,7 +7,14 @@ import (
 	"github.com/google/uuid"
 )
 
-type Response struct {
+type CreateTaskRequest struct {
+	Title   string `json:"title"`
+	Content string `json:"content"`
+	Status  string `json:"status"`
+	Tags    string `json:"tags"`
+}
+
+type TaskResponse struct {
 	ID        uuid.UUID `json:"id"`
 	Title     string    `json:"title"`
 	Content   string    `json:"content"`
@@ -15,13 +22,6 @@ type Response struct {
 	Tags      string    `json:"tags"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-}
-
-type CreateTaskRequest struct {
-	Title   string `json:"title"`
-	Content string `json:"content"`
-	Status  string `json:"status"`
-	Tags    string `json:"tags"`
 }
 
 func (r *CreateTaskRequest) Validate() error {

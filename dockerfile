@@ -1,4 +1,4 @@
-FROM golang:1.23.0-bullseye as build
+FROM golang:1.24.3-bullseye AS build
 
 WORKDIR /app
 COPY go.mod go.sum ./

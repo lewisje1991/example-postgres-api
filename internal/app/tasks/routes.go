@@ -6,4 +6,5 @@ import (
 
 func AddRoutes(server *server.Server, h *Handler) {
 	server.AddRoute("POST", "/task", h.PostTaskHandler())
+	server.AddRoute("GET", "/task/{id}", h.GetTaskHandler())
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/lewisje1991/code-bookmarks/internal/foundation/postgres"
 )
@@ -17,7 +18,7 @@ func NewStore(db postgres.DBTX) *Store {
 	return &Store{db: db}
 }
 
-func (s *Store) CreateTask(ctx context.Context, task Task) (Task, error) {
+func (s *Store) CreateTask(ctx context.Context, task Task) (*Task, error) {
 	queries := postgres.New(s.db)
 
 	res, err := queries.CreateTask(ctx, postgres.CreateTaskParams{
@@ -38,13 +39,13 @@ func (s *Store) CreateTask(ctx context.Context, task Task) (Task, error) {
 	})
 
 	if err != nil {
-		return Task{}, fmt.Errorf("failed to execute create task query: %w", err)
+		return nil, fmt.Errorf("failed to execute create task query: %w", err)
 	}
 
 	return taskFromDB(res), nil
 }
 
-func (s *Store) GetTask(ctx context.Context, id uuid.UUID) (Task, error) {
+func (s *Store) GetTask(ctx context.Context, id uuid.UUID) (*Task, error) {
 	queries := postgres.New(s.db)
 
 	res, err := queries.GetTask(ctx, pgtype.UUID{
@@ -53,14 +54,18 @@ func (s *Store) GetTask(ctx context.Context, id uuid.UUID) (Task, error) {
 	})
 
 	if err != nil {
-		return Task{}, fmt.Errorf("failed to execute get task query: %w", err)
+		if err == pgx.ErrNoRows {
+			return nil, nil
+		}
+
+		return nil, fmt.Errorf("failed to execute get task query: %w", err)
 	}
 
 	return taskFromDB(res), nil
 }
 
-func taskFromDB(dbTask postgres.Task) Task {
-	return Task{
+func taskFromDB(dbTask postgres.Task) *Task {
+	return &Task{
 		ID:        uuid.UUID(dbTask.ID.Bytes),
 		Title:     dbTask.Title,
 		Tags:      dbTask.Tags,

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"log/slog"
 
@@ -13,6 +12,7 @@ import (
 	domaintasks "github.com/lewisje1991/code-bookmarks/internal/domain/tasks"
 
 	"github.com/lewisje1991/code-bookmarks/internal/foundation/config"
+	"github.com/lewisje1991/code-bookmarks/internal/foundation/logger"
 	"github.com/lewisje1991/code-bookmarks/internal/foundation/postgres"
 	"github.com/lewisje1991/code-bookmarks/internal/foundation/server"
 )
@@ -37,14 +37,8 @@ func Run() error {
 
 	mode := config.Mode
 
-	var logger *slog.Logger
-	if mode == "prod" {
-		logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	} else {
-		logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
-	}
-
-	logger.Info(fmt.Sprintf("running in %s mode", mode))
+	logger.InitLogger(mode, slog.LevelInfo)
+	slog.Info(fmt.Sprintf("running in %s mode", mode))
 
 	db, err := postgres.Connect(ctx, config.DBURL)
 	if err != nil {
@@ -56,10 +50,10 @@ func Run() error {
 
 	tasksStore := domaintasks.NewStore(db)
 	tasksService := domaintasks.NewService(tasksStore)
-	tasksHandler := apptasks.NewHandler(logger, tasksService)
+	tasksHandler := apptasks.NewHandler(tasksService)
 	apptasks.AddRoutes(server, tasksHandler)
 
-	logger.Info(fmt.Sprintf("starting server on port:%d", config.HostPort))
+	slog.Info(fmt.Sprintf("starting server on port:%d", config.HostPort))
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", config.HostPort), server); err != nil {
 		return fmt.Errorf("failed to start server: %v", err)
 	}
