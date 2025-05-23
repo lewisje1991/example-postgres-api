@@ -1,12 +1,17 @@
-# Code Bookmarks
-- Your work like digitised
+# Example Postgres Golang CRUD API
 
-- Keep track of your daily work
-- Keep track of your tasks
-- Build your knowledge base from your daily work
-- Helps with annual reviews
-- Helps with salary negotiation
-- 
 
 ## Features
 
+- CRUD operations for tasks and diary entries
+- PostgreSQL database integration
+- Structured logging
+- Environment configuration via .env file
+- Graceful shutdown
+- Middleware for request logging
+- Error handling
+- CORS support
+- Health check endpoint
+- Basic authentication (optional)
+- Swagger documentation
+- Docker support

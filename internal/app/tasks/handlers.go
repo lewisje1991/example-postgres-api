@@ -20,7 +20,7 @@ func NewHandler(l *slog.Logger, s *domain.Service) *Handler {
 	}
 }
 
-func (h *Handler) NewTaskHandler() http.HandlerFunc {
+func (h *Handler) PostTaskHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req CreateTaskRequest
 		if err := server.Decode(r, &req); err != nil {

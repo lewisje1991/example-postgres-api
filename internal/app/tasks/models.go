@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,6 +22,22 @@ type CreateTaskRequest struct {
 	Content string `json:"content"`
 	Status  string `json:"status"`
 	Tags    string `json:"tags"`
+}
+
+func (r *CreateTaskRequest) Validate() error {
+	if r.Title == "" {
+		return fmt.Errorf("title is required")
+	}
+	if r.Content == "" {
+		return fmt.Errorf("content is required")
+	}
+	if r.Status == "" {
+		return fmt.Errorf("status is required")
+	}
+	if r.Tags == "" {
+		return fmt.Errorf("tags are required")
+	}
+	return nil
 }
 
 type UpdateTaskRequest struct {

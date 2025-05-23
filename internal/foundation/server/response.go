@@ -24,13 +24,7 @@ func EncodeData[T any](w http.ResponseWriter, status int, v T) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 
-	data := struct {
-		Data T `json:"data,omitempty"`
-	}{
-		Data: v,
-	}
-
-	if err := json.NewEncoder(w).Encode(data); err != nil {
+	if err := json.NewEncoder(w).Encode(v); err != nil {
 		return fmt.Errorf("encode json: %w", err)
 	}
 	return nil

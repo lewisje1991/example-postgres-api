@@ -59,25 +59,6 @@ func (s *Store) GetTask(ctx context.Context, id uuid.UUID) (Task, error) {
 	return taskFromDB(res), nil
 }
 
-func (s *Store) GetTasksByDiaryID(ctx context.Context, diaryID uuid.UUID) ([]Task, error) {
-	queries := postgres.New(s.db)
-
-	dbTasks, err := queries.GetTasksByDiary(ctx, pgtype.UUID{
-		Bytes: diaryID,
-		Valid: true,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to execute get tasks by diary query: %w", err)
-	}
-
-	var tasks []Task
-	for _, dbTask := range dbTasks {
-		tasks = append(tasks, taskFromDB(dbTask))
-	}
-
-	return tasks, nil
-}
-
 func taskFromDB(dbTask postgres.Task) Task {
 	return Task{
 		ID:        uuid.UUID(dbTask.ID.Bytes),
