@@ -4,17 +4,14 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
-
 	"log/slog"
 
-	apptasks "github.com/lewisje1991/code-bookmarks/internal/app/tasks"
-	domaintasks "github.com/lewisje1991/code-bookmarks/internal/domain/tasks"
-
-	"github.com/lewisje1991/code-bookmarks/internal/foundation/config"
-	"github.com/lewisje1991/code-bookmarks/internal/foundation/logger"
-	"github.com/lewisje1991/code-bookmarks/internal/foundation/postgres"
-	"github.com/lewisje1991/code-bookmarks/internal/foundation/server"
+	apptasks "github.com/lewisje1991/code-bookmarks/cmd/api/tasks"
+	"github.com/lewisje1991/code-bookmarks/internal/config"
+	"github.com/lewisje1991/code-bookmarks/internal/logger"
+	"github.com/lewisje1991/code-bookmarks/internal/postgres"
+	domaintasks "github.com/lewisje1991/code-bookmarks/internal/tasks"
+	"github.com/lewisje1991/code-bookmarks/internal/web"
 )
 
 // TODO: authorization/RBAC
@@ -46,16 +43,14 @@ func Run() error {
 	}
 	defer db.Close()
 
-	server := server.NewServer()
+	router := web.NewRouter()
 
 	tasksStore := domaintasks.NewStore(db)
 	tasksService := domaintasks.NewService(tasksStore)
 	tasksHandler := apptasks.NewHandler(tasksService)
-	apptasks.AddRoutes(server, tasksHandler)
+	apptasks.AddRoutes(router, tasksHandler)
 
-	slog.Info(fmt.Sprintf("starting server on port:%d", config.HostPort))
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", config.HostPort), server); err != nil {
-		return fmt.Errorf("failed to start server: %v", err)
-	}
-	return nil
+	// Create and start server
+	server := web.NewServer(config.HostPort, router)
+	return server.Start()
 }

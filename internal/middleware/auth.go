@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/lewisje1991/code-bookmarks/internal/foundation/server"
+	"github.com/lewisje1991/code-bookmarks/internal/web"
 )
 
 func IsAuthenticated(jwtSecret string, next http.Handler) http.Handler {
@@ -35,7 +35,7 @@ func IsAuthenticated(jwtSecret string, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		jwtToken := r.Header.Get("Authorization")
 		if jwtToken == "" {
-			server.EncodeError(w, http.StatusUnauthorized, errors.New("missing token"))
+			web.EncodeError(w, http.StatusUnauthorized, errors.New("missing token"))
 			return
 		}
 
@@ -44,7 +44,7 @@ func IsAuthenticated(jwtSecret string, next http.Handler) http.Handler {
 		userID, err := parseJWTToken(jwtToken, []byte(jwtSecret))
 		if err != nil {
 			log.Printf("Error parsing token: %s", err)
-			server.EncodeError(w, http.StatusUnauthorized, errors.New("invalid token"))
+			web.EncodeError(w, http.StatusUnauthorized, errors.New("invalid token"))
 			return
 		}
 

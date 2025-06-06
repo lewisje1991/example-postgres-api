@@ -1,4 +1,4 @@
-package server
+package web
 
 import (
 	"net/http"
@@ -7,28 +7,27 @@ import (
 	"github.com/go-chi/chi/middleware"
 )
 
-type Server struct {
+type Router struct {
 	mux *chi.Mux
 }
 
-func NewServer() *Server {
+func NewRouter() *Router {
 	mux := chi.NewRouter()
 	mux.Use(middleware.AllowContentType("application/json"))
 
-	// TODO add better place
 	mux.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	})
 
-	return &Server{
-		mux: chi.NewRouter(),
+	return &Router{
+		mux: mux,
 	}
 }
 
-func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	s.mux.ServeHTTP(w, r)
+func (ro *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	ro.mux.ServeHTTP(w, r)
 }
 
-func (s *Server) AddRoute(method, pattern string, handler http.Handler) {
-	s.mux.Method(method, pattern, handler)
+func (ro *Router) AddRoute(method, pattern string, handler http.Handler) {
+	ro.mux.Method(method, pattern, handler)
 }
