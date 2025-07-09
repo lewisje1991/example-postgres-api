@@ -2,9 +2,15 @@ package tasks
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
+)
+
+var (
+	ErrTaskNotFound = errors.New("task not found")
+	ErrInvalidStatus = errors.New("invalid task status")
 )
 
 type Service struct {
@@ -32,7 +38,7 @@ func (s *Service) GetTask(ctx context.Context, id uuid.UUID) (*Task, error) {
 	}
 
 	if task == nil {
-		return nil, nil
+		return nil, ErrTaskNotFound
 	}
 
 	return task, nil

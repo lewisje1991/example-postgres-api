@@ -36,27 +36,14 @@ func (h *Handler) PostTaskHandler() http.HandlerFunc {
 			return
 		}
 
-		task, err := h.service.CreateTask(r.Context(), domainTasks.Task{
-			Title:   req.Title,
-			Content: req.Content,
-			Status:  req.Status,
-			Tags:    req.Tags,
-		})
+		task, err := h.service.CreateTask(r.Context(), req.ToDomain())
 		if err != nil {
 			slog.Error("failed to create task", "error", err)
 			web.EncodeError(w, http.StatusInternalServerError, err)
 			return
 		}
 
-		resp := TaskResponse{
-			ID:        task.ID,
-			Title:     task.Title,
-			Content:   task.Content,
-			Status:    task.Status,
-			Tags:      task.Tags,
-			CreatedAt: task.CreatedAt,
-			UpdatedAt: task.UpdatedAt,
-		}
+		resp := TaskResponseFromDomain(task)
 
 		web.EncodeData(w, http.StatusCreated, resp)
 	}
@@ -80,26 +67,16 @@ func (h *Handler) GetTaskHandler() http.HandlerFunc {
 
 		task, err := h.service.GetTask(r.Context(), id)
 		if err != nil {
+			if errors.Is(err, domainTasks.ErrTaskNotFound) {
+				web.EncodeError(w, http.StatusNotFound, err)
+				return
+			}
 			slog.Error("failed to get task", "error", err)
 			web.EncodeError(w, http.StatusInternalServerError, err)
 			return
 		}
 
-		if task == nil {
-			slog.Error("task not found")
-			web.EncodeError(w, http.StatusNotFound, errors.New("task not found"))
-			return
-		}
-
-		resp := TaskResponse{
-			ID:        task.ID,
-			Title:     task.Title,
-			Content:   task.Content,
-			Status:    task.Status,
-			Tags:      task.Tags,
-			CreatedAt: task.CreatedAt,
-			UpdatedAt: task.UpdatedAt,
-		}
+		resp := TaskResponseFromDomain(task)
 
 		web.EncodeData(w, http.StatusOK, resp)
 	}

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	domainTasks "github.com/lewisje1991/code-bookmarks/internal/tasks"
 )
 
 type CreateTaskRequest struct {
@@ -38,6 +39,27 @@ func (r *CreateTaskRequest) Validate() error {
 		return fmt.Errorf("tags are required")
 	}
 	return nil
+}
+
+func (r *CreateTaskRequest) ToDomain() domainTasks.Task {
+	return domainTasks.Task{
+		Title:   r.Title,
+		Content: r.Content,
+		Status:  r.Status,
+		Tags:    r.Tags,
+	}
+}
+
+func TaskResponseFromDomain(task *domainTasks.Task) TaskResponse {
+	return TaskResponse{
+		ID:        task.ID,
+		Title:     task.Title,
+		Content:   task.Content,
+		Status:    task.Status,
+		Tags:      task.Tags,
+		CreatedAt: task.CreatedAt,
+		UpdatedAt: task.UpdatedAt,
+	}
 }
 
 type UpdateTaskRequest struct {
